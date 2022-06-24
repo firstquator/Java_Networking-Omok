@@ -75,7 +75,6 @@ public class OmokServer{
         String msg;                     // Client의 메시지
 
         while((msg = reader.readLine()) != null){
-          System.out.println(msg);
           // msg가 "[NAME]"으로 시작되는 메시지이면
           if(msg.startsWith("[NAME]")){
             userName = msg.substring(6);          // userName을 정한다.

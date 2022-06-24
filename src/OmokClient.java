@@ -341,7 +341,7 @@ public class OmokClient extends Frame implements Runnable{
     try{
       msgView.append("서버에 연결을 요청합니다.\n");
       socket = new Socket("localhost", 7777);
-      msgView.append("====== ✔ 연결 성공 ✔ ======\n");
+      msgView.append("======== ✔ 연결 성공 ✔ ========\n");
       msgView.append("이름을 입력하고 대기실로 입장하세요.\n");
       reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
       writer = new PrintWriter(socket.getOutputStream(), true);

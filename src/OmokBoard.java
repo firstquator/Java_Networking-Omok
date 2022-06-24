@@ -180,10 +180,11 @@ public class OmokBoard extends JPanel{
   private boolean checkWin(Point p, int color){
     // 방향 벡터
     int dir[][] = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 }, { -1, 1 }, { 1, -1 }, { -1, -1 }, { 1, 1 } };
-    int win_score = 1;
+
 
     for (int i = 0; i < 8; i += 2) {
       // win_score 가 5가 되면 승리 = 오목이 된 경우
+      int win_score = 1;
       int cunX = p.x;
       int cunY = p.y;
 
@@ -227,6 +228,7 @@ public class OmokBoard extends JPanel{
       if(win_score >= 5) {
         return true;
       }
+      System.out.println("Win_Score : " + win_score);
     }
     return false;
   }
