@@ -30,10 +30,6 @@ public class OmokServer{
       System.out.println(e);
     }
   }
-  public static void main(String[] args){
-    OmokServer server=new OmokServer();
-    server.startServer();
-  }
 
  // 클라이언트와 통신하는 스레드 클래스
   class Omok_Thread extends Thread{
@@ -151,6 +147,7 @@ public class OmokServer{
           // 사용자가 이겼다는 메시지를 보내면
           else if(msg.startsWith("[WIN]")){
             ready=false;
+            
             // 사용자에게 메시지를 보낸다.
             writer.println("[WIN]");
  
