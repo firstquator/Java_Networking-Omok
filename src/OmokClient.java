@@ -20,48 +20,77 @@ public class OmokClient extends Frame implements Runnable, ActionListener{
 
   // 각종 정보를 보여주는 레이블
   private Label infoView = new Label("< Term Project : Omok >", 1);
-  private OmokBoard board = new OmokBoard(15,30);          // 오목판 객체
+  private OmokBoard board = new OmokBoard();                    // 오목판 객체
   private BufferedReader reader;                                // 입력 스트림
   private PrintWriter writer;                                   // 출력 스트림
   private Socket socket;                                        // 소켓
   private int roomNumber = -1;                                  // 방 번호
   private String userName = null;                               // 사용자 이름
+
   public OmokClient(String title) {                             // 생성자
     super(title);
     setLayout(null);                                       // 레이아웃을 사용하지 않는다.
 
+    // Center GUI
+    int start_coord_x = 10;
+    int start_coord_y = 30;
+    int centerWidth = board.SIZE*(board.CELL + 1) + board.SIZE; // infoView와 오목판의 Width
+    int infoHeight = 40;                                        // infoView Height
+    int board_coord_y = start_coord_y + infoHeight + 10;                     // 오목판 시작 y좌표
+
     // 각종 컴포넌트를 생성하고 배치한다.
     msgView.setEditable(false);
-    infoView.setBounds(10,30,480,30);
+    infoView.setBounds(start_coord_x,start_coord_y, centerWidth, infoHeight);
     infoView.setBackground(new Color(200,200,255));
-    board.setLocation(10,70);
+    // 오목판 위치 설정
+    board.setLocation(start_coord_x, board_coord_y);
     add(infoView);
     add(board);
 
-    Panel p=new Panel();
-    p.setBackground(new Color(200, 255, 255));
-    p.setLayout(new GridLayout(3, 3));
-    p.add(new Label("이     름:", 2)); p.add(nameBox);
-    p.add(new Label("방 번호:", 2));   p.add(roomBox);
-    p.add(enterButton); p.add(exitButton);
+    // 오른쪽 GUI
+    int rightStart_coord_x = start_coord_x + centerWidth + 30;
+    int rightWidth = 250;
+    int nameAndRoomHeight = 70;
+    int awaiter_coord_y = start_coord_y + nameAndRoomHeight + 20;
+    int awaiterHeight = 180;
+    int chat_coord_y = awaiter_coord_y + awaiterHeight + 20;
+    int chatHeight = 250;
+
+    // 방 번호 및 이름 입력 Panel
+    Panel inputNameandRoom = new Panel();
+    inputNameandRoom.setBackground(new Color(200, 255, 255));
+    inputNameandRoom.setLayout(new GridLayout(3, 3));
+    inputNameandRoom.add(new Label("이     름:", 2)); inputNameandRoom.add(nameBox);
+    inputNameandRoom.add(new Label("방 번호:", 2));   inputNameandRoom.add(roomBox);
+    inputNameandRoom.add(enterButton); inputNameandRoom.add(exitButton);
     enterButton.setEnabled(false);
-    p.setBounds(500,30, 250,70);
+    inputNameandRoom.setBounds(rightStart_coord_x, start_coord_y, rightWidth, nameAndRoomHeight);
 
-    Panel p2=new Panel();
-    p2.setBackground(new Color(255,255,100));
-    p2.setLayout(new BorderLayout());
-    Panel p2_1=new Panel();
-    p2_1.add(startButton); p2_1.add(stopButton);
-    p2.add(pInfo,"North"); p2.add(pList,"Center"); p2.add(p2_1,"South");
+    // 대기자 명단 Panel
+    Panel awaiter = new Panel();
+    awaiter.setBackground(new Color(255,255,100));
+    awaiter.setLayout(new BorderLayout());
+    awaiter.setBounds(rightStart_coord_x, awaiter_coord_y, rightWidth, awaiterHeight);
+
+    // 기권 버튼 Panel
+    Panel awaiter_1 = new Panel();
+    awaiter_1.add(startButton); awaiter_1.add(stopButton);
+    awaiter.add(pInfo,"North"); awaiter.add(pList,"Center"); awaiter.add(awaiter_1,"South");
     startButton.setEnabled(false); stopButton.setEnabled(false);
-    p2.setBounds(500,110,250,180);
 
-    Panel p3=new Panel();
-    p3.setLayout(new BorderLayout());
-    p3.add(msgView,"Center");
-    p3.add(sendBox, "South");
-    p3.setBounds(500, 300, 250,250);
-    add(p); add(p2); add(p3);
+    // 채팅 Panel
+    Panel chat = new Panel();
+    chat.setLayout(new BorderLayout());
+    chat.add(msgView,"Center");
+    chat.add(sendBox, "South");
+    chat.setBounds(rightStart_coord_x, chat_coord_y, rightWidth, chatHeight);
+    add(inputNameandRoom); add(awaiter); add(chat);
+
+    // 전체 크기
+    int width = start_coord_x + rightStart_coord_x + rightWidth;
+    int height = start_coord_y + board_coord_y + centerWidth;
+
+    setSize(width, height);
 
     // 이벤트 리스너를 등록한다.
     sendBox.addActionListener(this);
@@ -80,9 +109,9 @@ public class OmokClient extends Frame implements Runnable, ActionListener{
 
  
   // 컴포넌트들의 액션 이벤트 처리
-  public void actionPerformed(ActionEvent ae){
+  public void actionPerformed(ActionEvent e){
     // 메시지 입력 상자이면
-    if(ae.getSource() == sendBox){             
+    if(e.getSource() == sendBox){             
       String msg = sendBox.getText();
       if(msg.length() == 0) return;
       if(msg.length() >= 30) msg = msg.substring(0,30);
@@ -93,10 +122,10 @@ public class OmokClient extends Frame implements Runnable, ActionListener{
     }
   
     // 입장하기 버튼이면
-    else if(ae.getSource()==enterButton){         
+    else if(e.getSource() == enterButton){         
       try{
         if(Integer.parseInt(roomBox.getText())<1){
-          infoView.setText("방번호가 잘못되었습니다. 1이상");
+          infoView.setText("방 번호가 잘못되었습니다. 1이상");
           return;
         }
           writer.println("[ROOM]"+Integer.parseInt(roomBox.getText()));
@@ -107,57 +136,60 @@ public class OmokClient extends Frame implements Runnable, ActionListener{
     }
 
     // 대기실로 버튼이면
-    else if(ae.getSource() == exitButton){           
+    else if(e.getSource() == exitButton){           
       try{
         goToWaitRoom();
         startButton.setEnabled(false);
         stopButton.setEnabled(false);
-      } catch(Exception e){}
+      } catch(Exception ie){}
     }
 
     // 대국 시작 버튼이면
-    else if(ae.getSource() == startButton){          
+    else if(e.getSource() == startButton){          
       try{
         writer.println("[START]");
         infoView.setText("상대의 결정을 기다립니다.");
         startButton.setEnabled(false);
-      }catch(Exception e){}
+      }catch(Exception ie){}
     }
 
     // 기권 버튼이면
-    else if(ae.getSource()==stopButton){          
+    else if(e.getSource()==stopButton){          
       try{
         writer.println("[DROPGAME]");
         endGame("기권하였습니다.");
-      }catch(Exception e){}
+      }catch(Exception ie){}
     }
   }
+
 
   // 대기실로 버튼을 누르면 호출된다.
   void goToWaitRoom(){                   
     if(userName == null){
       String name = nameBox.getText().trim();
-      if(name.length() <= 2 || name.length() > 10){
-        infoView.setText("이름이 잘못되었습니다. 3~10자");
+      if(name.length() < 1 || name.length() > 10){
+        infoView.setText("이름이 잘못되었습니다. 1 ~ 10자");
         nameBox.requestFocus();
         return;
       }
-      userName=name;
+
+      userName = name;
       writer.println("[NAME]" + userName);    
       nameBox.setText(userName);
       nameBox.setEditable(false);
     }  
 
     msgView.setText("");
-    writer.println("[ROOM] 0");
+    writer.println("[ROOM]0");
     infoView.setText("대기실에 입장하셨습니다.");
     roomBox.setText("0");
     enterButton.setEnabled(true);
     exitButton.setEnabled(false);
   }
 
+
   public void run(){
-    String msg;                                            // 서버로부터의 메시지
+    String msg;       // 서버로부터의 메시지
     try{
       while((msg=reader.readLine())!=null){
         // 상대편이 놓은 돌의 좌표
@@ -199,7 +231,7 @@ public class OmokClient extends Frame implements Runnable, ActionListener{
           pList.remove(msg.substring(6));    // 리스트에서 제거
           playersInfo();                                // 인원수를 다시 계산하여 보여준다.
           msgView.append("[" + msg.substring(6) + "]님이 다른 방으로 입장하였습니다.\n");
-          if(roomNumber!=0)
+          if(roomNumber != 0)
             endGame("상대가 나갔습니다.");
         }
         // 손님 접속 종료
@@ -242,6 +274,7 @@ public class OmokClient extends Frame implements Runnable, ActionListener{
     msgView.append("접속이 끊겼습니다.");
   }
 
+
   // 게임의 종료시키는 메소드
   private void endGame(String msg){                
     infoView.setText(msg);
@@ -254,18 +287,20 @@ public class OmokClient extends Frame implements Runnable, ActionListener{
     if(pList.getItemCount()==2)startButton.setEnabled(true);
   }
 
+
   // 방에 있는 접속자의 수를 보여준다.
   private void playersInfo(){                 
     int count=pList.getItemCount();
     if(roomNumber==0)
-      pInfo.setText("대기실: "+count+"명");
-    else pInfo.setText(roomNumber+" 번 방: "+count+"명");
+      pInfo.setText("대기실: "+ count + "명");
+    else pInfo.setText(roomNumber + " 번 방: " + count + "명");
 
     // 대국 시작 버튼의 활성화 상태를 점검한다.
     if(count==2 && roomNumber!=0)
       startButton.setEnabled(true);
     else startButton.setEnabled(false);
   }
+
 
   // 사용자 리스트에서 사용자들을 추출하여 pList에 추가한다.
   private void nameList(String msg){
@@ -275,6 +310,7 @@ public class OmokClient extends Frame implements Runnable, ActionListener{
       pList.add(st.nextToken());
     playersInfo();
   }
+
 
   // 연결
   void connect(){                   
@@ -289,7 +325,7 @@ public class OmokClient extends Frame implements Runnable, ActionListener{
       new Thread(this).start();
       board.setWriter(writer);
     }catch(Exception e){
-      msgView.append(e+"\n\n연결 실패..\n");  
+      msgView.append(e + "\n\n연결 실패...\n");  
     }
   }
 }
