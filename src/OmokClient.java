@@ -5,32 +5,32 @@ import java.util.*;
 import java.awt.event.*;
 
 public class OmokClient extends Frame implements Runnable, ActionListener{
-  private TextArea msgView = new TextArea("", 1,1,1);   // ¸Ş½ÃÁö¸¦ º¸¿©ÁÖ´Â ¿µ¿ª
-  private TextField sendBox = new TextField("");         // º¸³¾ ¸Ş½ÃÁö¸¦ Àû´Â »óÀÚ
-  private TextField nameBox = new TextField();          // »ç¿ëÀÚ ÀÌ¸§ »óÀÚ
-  private TextField roomBox = new TextField("0");        // ¹æ ¹øÈ£ »óÀÚ
+  private TextArea msgView = new TextArea("", 1,1,1);   // ë©”ì‹œì§€ë¥¼ ë³´ì—¬ì£¼ëŠ” ì˜ì—­
+  private TextField sendBox = new TextField("");         // ë³´ë‚¼ ë©”ì‹œì§€ë¥¼ ì ëŠ” ìƒì
+  private TextField nameBox = new TextField();          // ì‚¬ìš©ì ì´ë¦„ ìƒì
+  private TextField roomBox = new TextField("0");        // ë°© ë²ˆí˜¸ ìƒì
 
-  // ¹æ¿¡ Á¢¼ÓÇÑ ÀÎ¿øÀÇ ¼ö¸¦ º¸¿©ÁÖ´Â ·¹ÀÌºí
-  private Label pInfo = new Label("´ë±â½Ç:  ¸í");
-  private java.awt.List pList = new java.awt.List();             // »ç¿ëÀÚ ¸í´ÜÀ» º¸¿©ÁÖ´Â ¸®½ºÆ®
-  private Button startButton = new Button("´ë±¹ ½ÃÀÛ");    // ´ë±¹ ½ÃÀÛ ¹öÆ°
-  private Button stopButton = new Button("±â±Ç");         // ±â±Ç ¹öÆ°
-  private Button enterButton = new Button("ÀÔÀåÇÏ±â");    // ÀÔÀåÇÏ±â ¹öÆ°
-  private Button exitButton = new Button("´ë±â½Ç·Î");     // ´ë±â½Ç·Î ¹öÆ°
+  // ë°©ì— ì ‘ì†í•œ ì¸ì›ì˜ ìˆ˜ë¥¼ ë³´ì—¬ì£¼ëŠ” ë ˆì´ë¸”
+  private Label pInfo = new Label("ëŒ€ê¸°ì‹¤:  ëª…");
+  private java.awt.List pList = new java.awt.List();             // ì‚¬ìš©ì ëª…ë‹¨ì„ ë³´ì—¬ì£¼ëŠ” ë¦¬ìŠ¤íŠ¸
+  private Button startButton = new Button("ëŒ€êµ­ ì‹œì‘");    // ëŒ€êµ­ ì‹œì‘ ë²„íŠ¼
+  private Button stopButton = new Button("ê¸°ê¶Œ");         // ê¸°ê¶Œ ë²„íŠ¼
+  private Button enterButton = new Button("ì…ì¥í•˜ê¸°");    // ì…ì¥í•˜ê¸° ë²„íŠ¼
+  private Button exitButton = new Button("ëŒ€ê¸°ì‹¤ë¡œ");     // ëŒ€ê¸°ì‹¤ë¡œ ë²„íŠ¼
 
-  // °¢Á¾ Á¤º¸¸¦ º¸¿©ÁÖ´Â ·¹ÀÌºí
+  // ê°ì¢… ì •ë³´ë¥¼ ë³´ì—¬ì£¼ëŠ” ë ˆì´ë¸”
   private Label infoView = new Label("< Term Project : Omok >", 1);
-  private OmokBoard board = new OmokBoard(15,30);          // ¿À¸ñÆÇ °´Ã¼
-  private BufferedReader reader;                                // ÀÔ·Â ½ºÆ®¸²
-  private PrintWriter writer;                                   // Ãâ·Â ½ºÆ®¸²
-  private Socket socket;                                        // ¼ÒÄÏ
-  private int roomNumber = -1;                                  // ¹æ ¹øÈ£
-  private String userName = null;                               // »ç¿ëÀÚ ÀÌ¸§
-  public OmokClient(String title) {                             // »ı¼ºÀÚ
+  private OmokBoard board = new OmokBoard(15,30);          // ì˜¤ëª©íŒ ê°ì²´
+  private BufferedReader reader;                                // ì…ë ¥ ìŠ¤íŠ¸ë¦¼
+  private PrintWriter writer;                                   // ì¶œë ¥ ìŠ¤íŠ¸ë¦¼
+  private Socket socket;                                        // ì†Œì¼“
+  private int roomNumber = -1;                                  // ë°© ë²ˆí˜¸
+  private String userName = null;                               // ì‚¬ìš©ì ì´ë¦„
+  public OmokClient(String title) {                             // ìƒì„±ì
     super(title);
-    setLayout(null);                                       // ·¹ÀÌ¾Æ¿ôÀ» »ç¿ëÇÏÁö ¾Ê´Â´Ù.
+    setLayout(null);                                       // ë ˆì´ì•„ì›ƒì„ ì‚¬ìš©í•˜ì§€ ì•ŠëŠ”ë‹¤.
 
-    // °¢Á¾ ÄÄÆ÷³ÍÆ®¸¦ »ı¼ºÇÏ°í ¹èÄ¡ÇÑ´Ù.
+    // ê°ì¢… ì»´í¬ë„ŒíŠ¸ë¥¼ ìƒì„±í•˜ê³  ë°°ì¹˜í•œë‹¤.
     msgView.setEditable(false);
     infoView.setBounds(10,30,480,30);
     infoView.setBackground(new Color(200,200,255));
@@ -41,8 +41,8 @@ public class OmokClient extends Frame implements Runnable, ActionListener{
     Panel p=new Panel();
     p.setBackground(new Color(200, 255, 255));
     p.setLayout(new GridLayout(3, 3));
-    p.add(new Label("ÀÌ     ¸§:", 2)); p.add(nameBox);
-    p.add(new Label("¹æ ¹øÈ£:", 2));   p.add(roomBox);
+    p.add(new Label("ì´     ë¦„:", 2)); p.add(nameBox);
+    p.add(new Label("ë°© ë²ˆí˜¸:", 2));   p.add(roomBox);
     p.add(enterButton); p.add(exitButton);
     enterButton.setEnabled(false);
     p.setBounds(500,30, 250,70);
@@ -63,14 +63,14 @@ public class OmokClient extends Frame implements Runnable, ActionListener{
     p3.setBounds(500, 300, 250,250);
     add(p); add(p2); add(p3);
 
-    // ÀÌº¥Æ® ¸®½º³Ê¸¦ µî·ÏÇÑ´Ù.
+    // ì´ë²¤íŠ¸ ë¦¬ìŠ¤ë„ˆë¥¼ ë“±ë¡í•œë‹¤.
     sendBox.addActionListener(this);
     enterButton.addActionListener(this);
     exitButton.addActionListener(this);
     startButton.addActionListener(this);
     stopButton.addActionListener(this);
 
-    // À©µµ¿ì ´İ±â Ã³¸®
+    // ìœˆë„ìš° ë‹«ê¸° ì²˜ë¦¬
     addWindowListener(new WindowAdapter(){
        public void windowClosing(WindowEvent we){
          System.exit(0);
@@ -79,9 +79,9 @@ public class OmokClient extends Frame implements Runnable, ActionListener{
   }
 
  
-  // ÄÄÆ÷³ÍÆ®µéÀÇ ¾×¼Ç ÀÌº¥Æ® Ã³¸®
+  // ì»´í¬ë„ŒíŠ¸ë“¤ì˜ ì•¡ì…˜ ì´ë²¤íŠ¸ ì²˜ë¦¬
   public void actionPerformed(ActionEvent ae){
-    // ¸Ş½ÃÁö ÀÔ·Â »óÀÚÀÌ¸é
+    // ë©”ì‹œì§€ ì…ë ¥ ìƒìì´ë©´
     if(ae.getSource() == sendBox){             
       String msg = sendBox.getText();
       if(msg.length() == 0) return;
@@ -92,21 +92,21 @@ public class OmokClient extends Frame implements Runnable, ActionListener{
       } catch(Exception ie){}
     }
   
-    // ÀÔÀåÇÏ±â ¹öÆ°ÀÌ¸é
+    // ì…ì¥í•˜ê¸° ë²„íŠ¼ì´ë©´
     else if(ae.getSource()==enterButton){         
       try{
         if(Integer.parseInt(roomBox.getText())<1){
-          infoView.setText("¹æ¹øÈ£°¡ Àß¸øµÇ¾ú½À´Ï´Ù. 1ÀÌ»ó");
+          infoView.setText("ë°©ë²ˆí˜¸ê°€ ì˜ëª»ë˜ì—ˆìŠµë‹ˆë‹¤. 1ì´ìƒ");
           return;
         }
           writer.println("[ROOM]"+Integer.parseInt(roomBox.getText()));
           msgView.setText("");
         }catch(Exception ie){
-          infoView.setText("ÀÔ·ÂÇÏ½Å »çÇ×¿¡ ¿À·ù°¡ ¾Ò½À´Ï´Ù.");
+          infoView.setText("ì…ë ¥í•˜ì‹  ì‚¬í•­ì— ì˜¤ë¥˜ê°€ ì•˜ìŠµë‹ˆë‹¤.");
         }
     }
 
-    // ´ë±â½Ç·Î ¹öÆ°ÀÌ¸é
+    // ëŒ€ê¸°ì‹¤ë¡œ ë²„íŠ¼ì´ë©´
     else if(ae.getSource() == exitButton){           
       try{
         goToWaitRoom();
@@ -115,30 +115,30 @@ public class OmokClient extends Frame implements Runnable, ActionListener{
       } catch(Exception e){}
     }
 
-    // ´ë±¹ ½ÃÀÛ ¹öÆ°ÀÌ¸é
+    // ëŒ€êµ­ ì‹œì‘ ë²„íŠ¼ì´ë©´
     else if(ae.getSource() == startButton){          
       try{
         writer.println("[START]");
-        infoView.setText("»ó´ëÀÇ °áÁ¤À» ±â´Ù¸³´Ï´Ù.");
+        infoView.setText("ìƒëŒ€ì˜ ê²°ì •ì„ ê¸°ë‹¤ë¦½ë‹ˆë‹¤.");
         startButton.setEnabled(false);
       }catch(Exception e){}
     }
 
-    // ±â±Ç ¹öÆ°ÀÌ¸é
+    // ê¸°ê¶Œ ë²„íŠ¼ì´ë©´
     else if(ae.getSource()==stopButton){          
       try{
         writer.println("[DROPGAME]");
-        endGame("±â±ÇÇÏ¿´½À´Ï´Ù.");
+        endGame("ê¸°ê¶Œí•˜ì˜€ìŠµë‹ˆë‹¤.");
       }catch(Exception e){}
     }
   }
 
-  // ´ë±â½Ç·Î ¹öÆ°À» ´©¸£¸é È£ÃâµÈ´Ù.
+  // ëŒ€ê¸°ì‹¤ë¡œ ë²„íŠ¼ì„ ëˆ„ë¥´ë©´ í˜¸ì¶œëœë‹¤.
   void goToWaitRoom(){                   
     if(userName == null){
       String name = nameBox.getText().trim();
       if(name.length() <= 2 || name.length() > 10){
-        infoView.setText("ÀÌ¸§ÀÌ Àß¸øµÇ¾ú½À´Ï´Ù. 3~10ÀÚ");
+        infoView.setText("ì´ë¦„ì´ ì˜ëª»ë˜ì—ˆìŠµë‹ˆë‹¤. 3~10ì");
         nameBox.requestFocus();
         return;
       }
@@ -150,124 +150,124 @@ public class OmokClient extends Frame implements Runnable, ActionListener{
 
     msgView.setText("");
     writer.println("[ROOM] 0");
-    infoView.setText("´ë±â½Ç¿¡ ÀÔÀåÇÏ¼Ì½À´Ï´Ù.");
+    infoView.setText("ëŒ€ê¸°ì‹¤ì— ì…ì¥í•˜ì…¨ìŠµë‹ˆë‹¤.");
     roomBox.setText("0");
     enterButton.setEnabled(true);
     exitButton.setEnabled(false);
   }
 
   public void run(){
-    String msg;                                            // ¼­¹ö·ÎºÎÅÍÀÇ ¸Ş½ÃÁö
+    String msg;                                            // ì„œë²„ë¡œë¶€í„°ì˜ ë©”ì‹œì§€
     try{
       while((msg=reader.readLine())!=null){
-        // »ó´ëÆíÀÌ ³õÀº µ¹ÀÇ ÁÂÇ¥
+        // ìƒëŒ€í¸ì´ ë†“ì€ ëŒì˜ ì¢Œí‘œ
         if(msg.startsWith("[STONE]")){     
           String temp=msg.substring(7);
           int x=Integer.parseInt(temp.substring(0,temp.indexOf(" ")));
           int y=Integer.parseInt(temp.substring(temp.indexOf(" ")+1));
-          board.putOpponent(x, y);                        // »ó´ëÆíÀÇ µ¹À» ±×¸°´Ù.
-          board.setEnable(true);                  // »ç¿ëÀÚ°¡ µ¹À» ³õÀ» ¼ö ÀÖµµ·Ï ÇÑ´Ù.
+          board.putOpponent(x, y);                        // ìƒëŒ€í¸ì˜ ëŒì„ ê·¸ë¦°ë‹¤.
+          board.setEnable(true);                  // ì‚¬ìš©ìê°€ ëŒì„ ë†“ì„ ìˆ˜ ìˆë„ë¡ í•œë‹¤.
         }
-        // ¹æ¿¡ ÀÔÀå
+        // ë°©ì— ì…ì¥
         else if(msg.startsWith("[ROOM]")){    
-          if(!msg.equals("[ROOM]0")){           // ´ë±â½ÇÀÌ ¾Æ´Ñ ¹æÀÌ¸é
+          if(!msg.equals("[ROOM]0")){           // ëŒ€ê¸°ì‹¤ì´ ì•„ë‹Œ ë°©ì´ë©´
             enterButton.setEnabled(false);
             exitButton.setEnabled(true);
-            infoView.setText(msg.substring(6)+"¹ø ¹æ¿¡ ÀÔÀåÇÏ¼Ì½À´Ï´Ù.");
+            infoView.setText(msg.substring(6)+"ë²ˆ ë°©ì— ì…ì¥í•˜ì…¨ìŠµë‹ˆë‹¤.");
           }
-          else infoView.setText("´ë±â½Ç¿¡ ÀÔÀåÇÏ¼Ì½À´Ï´Ù.");
-          if(board.isRunning()){                         // °ÔÀÓÀÌ ÁøÇàÁßÀÎ »óÅÂÀÌ¸é
-            board.stopGame();                            // °ÔÀÓÀ» ÁßÁö½ÃÅ²´Ù.
+          else infoView.setText("ëŒ€ê¸°ì‹¤ì— ì…ì¥í•˜ì…¨ìŠµë‹ˆë‹¤.");
+          if(board.isRunning()){                         // ê²Œì„ì´ ì§„í–‰ì¤‘ì¸ ìƒíƒœì´ë©´
+            board.stopGame();                            // ê²Œì„ì„ ì¤‘ì§€ì‹œí‚¨ë‹¤.
           }
         }
-        // ¹æÀÌ Âù »óÅÂÀÌ¸é
+        // ë°©ì´ ì°¬ ìƒíƒœì´ë©´
         else if(msg.startsWith("[FULL]")){       
-          infoView.setText("¹æÀÌ Â÷¼­ ÀÔÀåÇÒ ¼ö ¾ø½À´Ï´Ù.");
+          infoView.setText("ë°©ì´ ì°¨ì„œ ì…ì¥í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
         }
-        // ¹æ¿¡ ÀÖ´Â »ç¿ëÀÚ ¸í´Ü
+        // ë°©ì— ìˆëŠ” ì‚¬ìš©ì ëª…ë‹¨
         else if(msg.startsWith("[PLAYERS]")){      
           nameList(msg.substring(9));
         }
-        // ¼Õ´Ô ÀÔÀå
+        // ì†ë‹˜ ì…ì¥
         else if(msg.startsWith("[ENTER]")){        
           pList.add(msg.substring(7));
           playersInfo();
-          msgView.append("[" +  msg.substring(7) + "]´ÔÀÌ ÀÔÀåÇÏ¿´½À´Ï´Ù.\n");
+          msgView.append("[" +  msg.substring(7) + "]ë‹˜ì´ ì…ì¥í•˜ì˜€ìŠµë‹ˆë‹¤.\n");
         }
-        // ¼Õ´Ô ÅğÀå
+        // ì†ë‹˜ í‡´ì¥
         else if(msg.startsWith("[EXIT]")){            
-          pList.remove(msg.substring(6));    // ¸®½ºÆ®¿¡¼­ Á¦°Å
-          playersInfo();                                // ÀÎ¿ø¼ö¸¦ ´Ù½Ã °è»êÇÏ¿© º¸¿©ÁØ´Ù.
-          msgView.append("[" + msg.substring(6) + "]´ÔÀÌ ´Ù¸¥ ¹æÀ¸·Î ÀÔÀåÇÏ¿´½À´Ï´Ù.\n");
+          pList.remove(msg.substring(6));    // ë¦¬ìŠ¤íŠ¸ì—ì„œ ì œê±°
+          playersInfo();                                // ì¸ì›ìˆ˜ë¥¼ ë‹¤ì‹œ ê³„ì‚°í•˜ì—¬ ë³´ì—¬ì¤€ë‹¤.
+          msgView.append("[" + msg.substring(6) + "]ë‹˜ì´ ë‹¤ë¥¸ ë°©ìœ¼ë¡œ ì…ì¥í•˜ì˜€ìŠµë‹ˆë‹¤.\n");
           if(roomNumber!=0)
-            endGame("»ó´ë°¡ ³ª°¬½À´Ï´Ù.");
+            endGame("ìƒëŒ€ê°€ ë‚˜ê°”ìŠµë‹ˆë‹¤.");
         }
-        // ¼Õ´Ô Á¢¼Ó Á¾·á
+        // ì†ë‹˜ ì ‘ì† ì¢…ë£Œ
         else if(msg.startsWith("[DISCONNECT]")){     
           pList.remove(msg.substring(12));
           playersInfo();
-          msgView.append("[" + msg.substring(12) + "]´ÔÀÌ Á¢¼ÓÀ» ²÷¾ú½À´Ï´Ù.\n");
+          msgView.append("[" + msg.substring(12) + "]ë‹˜ì´ ì ‘ì†ì„ ëŠì—ˆìŠµë‹ˆë‹¤.\n");
           if(roomNumber!=0)
-            endGame("»ó´ë°¡ ³ª°¬½À´Ï´Ù.");
+            endGame("ìƒëŒ€ê°€ ë‚˜ê°”ìŠµë‹ˆë‹¤.");
         }
-        // µ¹ÀÇ »öÀ» ºÎ¿©¹Ş´Â´Ù.
+        // ëŒì˜ ìƒ‰ì„ ë¶€ì—¬ë°›ëŠ”ë‹¤.
         else if(msg.startsWith("[COLOR]")){          
           String color=msg.substring(7);
-          board.startGame(color);                         // °ÔÀÓÀ» ½ÃÀÛÇÑ´Ù.
+          board.startGame(color);                         // ê²Œì„ì„ ì‹œì‘í•œë‹¤.
           if(color.equals("BLACK"))
-            infoView.setText("Èæµ¹À» Àâ¾Ò½À´Ï´Ù.");
+            infoView.setText("í‘ëŒì„ ì¡ì•˜ìŠµë‹ˆë‹¤.");
           else
-            infoView.setText("¹éµ¹À» Àâ¾Ò½À´Ï´Ù.");
-          stopButton.setEnabled(true);                 // ±â±Ç ¹öÆ° È°¼ºÈ­
+            infoView.setText("ë°±ëŒì„ ì¡ì•˜ìŠµë‹ˆë‹¤.");
+          stopButton.setEnabled(true);                 // ê¸°ê¶Œ ë²„íŠ¼ í™œì„±í™”
         }
 
-        // »ó´ë°¡ ±â±ÇÇÏ¸é
+        // ìƒëŒ€ê°€ ê¸°ê¶Œí•˜ë©´
         else if(msg.startsWith("[DROPGAME]"))      
-          endGame("»ó´ë°¡ ±â±ÇÇÏ¿´½À´Ï´Ù.");
+          endGame("ìƒëŒ€ê°€ ê¸°ê¶Œí•˜ì˜€ìŠµë‹ˆë‹¤.");
 
-        // ÀÌ°åÀ¸¸é
+        // ì´ê²¼ìœ¼ë©´
         else if(msg.startsWith("[WIN]"))              
-          endGame("ÀÌ°å½À´Ï´Ù.");
+          endGame("ì´ê²¼ìŠµë‹ˆë‹¤.");
 
-        // Á³À¸¸é
+        // ì¡Œìœ¼ë©´
         else if(msg.startsWith("[LOSE]"))           
-          endGame("Á³½À´Ï´Ù.");
+          endGame("ì¡ŒìŠµë‹ˆë‹¤.");
 
-        // ¾à¼ÓµÈ ¸Ş½ÃÁö°¡ ¾Æ´Ï¸é ¸Ş½ÃÁö ¿µ¿ª¿¡ º¸¿©ÁØ´Ù.
+        // ì•½ì†ëœ ë©”ì‹œì§€ê°€ ì•„ë‹ˆë©´ ë©”ì‹œì§€ ì˜ì—­ì— ë³´ì—¬ì¤€ë‹¤.
         else msgView.append(msg + "\n");
       }
     }catch(IOException ie){
       msgView.append(ie+"\n");
     }
-    msgView.append("Á¢¼ÓÀÌ ²÷°å½À´Ï´Ù.");
+    msgView.append("ì ‘ì†ì´ ëŠê²¼ìŠµë‹ˆë‹¤.");
   }
 
-  // °ÔÀÓÀÇ Á¾·á½ÃÅ°´Â ¸Ş¼Òµå
+  // ê²Œì„ì˜ ì¢…ë£Œì‹œí‚¤ëŠ” ë©”ì†Œë“œ
   private void endGame(String msg){                
     infoView.setText(msg);
     startButton.setEnabled(false);
     stopButton.setEnabled(false);
 
-    // 2ÃÊ°£ ´ë±â
+    // 2ì´ˆê°„ ëŒ€ê¸°
     try{ Thread.sleep(2000); }catch(Exception e){}    
     if(board.isRunning())board.stopGame();
     if(pList.getItemCount()==2)startButton.setEnabled(true);
   }
 
-  // ¹æ¿¡ ÀÖ´Â Á¢¼ÓÀÚÀÇ ¼ö¸¦ º¸¿©ÁØ´Ù.
+  // ë°©ì— ìˆëŠ” ì ‘ì†ìì˜ ìˆ˜ë¥¼ ë³´ì—¬ì¤€ë‹¤.
   private void playersInfo(){                 
     int count=pList.getItemCount();
     if(roomNumber==0)
-      pInfo.setText("´ë±â½Ç: "+count+"¸í");
-    else pInfo.setText(roomNumber+" ¹ø ¹æ: "+count+"¸í");
+      pInfo.setText("ëŒ€ê¸°ì‹¤: "+count+"ëª…");
+    else pInfo.setText(roomNumber+" ë²ˆ ë°©: "+count+"ëª…");
 
-    // ´ë±¹ ½ÃÀÛ ¹öÆ°ÀÇ È°¼ºÈ­ »óÅÂ¸¦ Á¡°ËÇÑ´Ù.
+    // ëŒ€êµ­ ì‹œì‘ ë²„íŠ¼ì˜ í™œì„±í™” ìƒíƒœë¥¼ ì ê²€í•œë‹¤.
     if(count==2 && roomNumber!=0)
       startButton.setEnabled(true);
     else startButton.setEnabled(false);
   }
 
-  // »ç¿ëÀÚ ¸®½ºÆ®¿¡¼­ »ç¿ëÀÚµéÀ» ÃßÃâÇÏ¿© pList¿¡ Ãß°¡ÇÑ´Ù.
+  // ì‚¬ìš©ì ë¦¬ìŠ¤íŠ¸ì—ì„œ ì‚¬ìš©ìë“¤ì„ ì¶”ì¶œí•˜ì—¬ pListì— ì¶”ê°€í•œë‹¤.
   private void nameList(String msg){
     pList.removeAll();
     StringTokenizer st=new StringTokenizer(msg, "\t");
@@ -276,20 +276,20 @@ public class OmokClient extends Frame implements Runnable, ActionListener{
     playersInfo();
   }
 
-  // ¿¬°á
+  // ì—°ê²°
   void connect(){                   
     try{
-      msgView.append("¼­¹ö¿¡ ¿¬°áÀ» ¿äÃ»ÇÕ´Ï´Ù.\n");
+      msgView.append("ì„œë²„ì— ì—°ê²°ì„ ìš”ì²­í•©ë‹ˆë‹¤.\n");
       socket = new Socket("localhost", 7777);
-      msgView.append("=== ¿¬°á ¼º°ø ===\n");
-      msgView.append("ÀÌ¸§À» ÀÔ·ÂÇÏ°í ´ë±â½Ç·Î ÀÔÀåÇÏ¼¼¿ä.\n");
+      msgView.append("=== ì—°ê²° ì„±ê³µ ===\n");
+      msgView.append("ì´ë¦„ì„ ì…ë ¥í•˜ê³  ëŒ€ê¸°ì‹¤ë¡œ ì…ì¥í•˜ì„¸ìš”.\n");
       reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
       writer = new PrintWriter(socket.getOutputStream(), true);
 
       new Thread(this).start();
       board.setWriter(writer);
     }catch(Exception e){
-      msgView.append(e+"\n\n¿¬°á ½ÇÆĞ..\n");  
+      msgView.append(e+"\n\nì—°ê²° ì‹¤íŒ¨..\n");  
     }
   }
 }

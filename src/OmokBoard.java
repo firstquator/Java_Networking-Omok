@@ -5,9 +5,10 @@ import java.awt.event.*;
 // 오목판을 구현하는 클래스
 class OmokBoard extends Canvas{               
   public static final int BLACK = 1, WHITE = -1;   // 흑과 백을 나타내는 상수
+  private static final int CELL = 30, SIZE = 20;
 
   private int[][] map;                         // 오목판 배열
-  private int size;                            // size는 격자의 가로 또는 세로 개수, 15로 정한다.
+  private int size;                            // size는 격자의 가로 또는 세로 개수 15로 정한다.
   private int cell;                            // 격자의 크기(pixel)
   private String info = "게임 중지";           // 게임의 진행 상황을 나타내는 문자열
   private int color = BLACK;                   // 사용자의 돌 색깔
@@ -25,12 +26,12 @@ class OmokBoard extends Canvas{
   OmokBoard(int s, int c){           
     this.size = s; this.cell = c;
 
-    map=new int[size+2][];                    // 맵의 크기를 정한다.
-    for(int i=0;i<map.length;i++)
-      map[i]=new int[size+2];
+    map = new int[size+2][];                    // 맵의 크기를 정한다.
+    for(int i = 0;i < map.length; i++)
+      map[i]=new int[size + 2];
 
-    setBackground(new Color(200,200,100));            // 오목판의 배경색을 정한다.
-    setSize(size*(cell+1) + size, size*(cell+1) + size);      // 오목판의 크기를 계산한다.
+    setBackground(new Color(206, 167, 61));            // 오목판의 배경색을 정한다.
+    setSize(size*(cell + 1) + size, size*(cell + 1) + size);      // 오목판의 크기를 계산한다.
 
     // 오목판의 마우스 이벤트 처리
     addMouseListener(new MouseAdapter(){
@@ -42,7 +43,8 @@ class OmokBoard extends Canvas{
         int y = (int)Math.round(me.getY() / (double)cell);
 
         // 돌이 놓일 수 있는 좌표가 아니면 빠져 나온다.
-        if(x==0 || y==0 || x==size+1 || y==size+1)return;
+        if(x == 0 || y == 0 || x == size + 1 || y == size + 1) 
+          return;
 
         // 해당 좌표에 다른 돌이 놓여져 있으면 빠져 나온다.
         if(map[x][y]==BLACK || map[x][y]==WHITE)return;
@@ -66,7 +68,8 @@ class OmokBoard extends Canvas{
     });
   }
 
-  public boolean isRunning(){           // 게임의 진행 상태를 반환한다.
+  // 게임의 진행 상태를 반환한다.
+  public boolean isRunning(){           
     return running;
   }
 
@@ -89,9 +92,9 @@ class OmokBoard extends Canvas{
   // 게임을 멈춘다.
   public void stopGame(){               
     reset();                            // 오목판을 초기화
-    writer.println("[STOPGAME]");       // 상대편에게 메시지를 보낸다.
-    enable=false;
-    running=false;
+    writer.println("[STOPGAME]");     // 상대편에게 메시지를 보낸다.
+    enable = false;
+    running = false;
   }
 
   // 상대편의 돌을 놓는다.
@@ -116,7 +119,7 @@ class OmokBoard extends Canvas{
 
   // 화면을 그린다.
   public void paint(Graphics g){                
-    if(gbuff == null){                             // 버퍼가 없으면 버퍼를 만든다.
+    if(gbuff == null){                   // 버퍼가 없으면 버퍼를 만든다.
       buff = createImage(getWidth(),getHeight());
       gbuff = buff.getGraphics();
     }
@@ -144,29 +147,28 @@ class OmokBoard extends Canvas{
 
   // 흑 돌을 (x, y)에 그린다.
   private void drawBlack(int x, int y){         
-    Graphics2D gbuff=(Graphics2D)this.gbuff;
+    Graphics2D gbuff = (Graphics2D)this.gbuff;
     gbuff.setColor(Color.black);
-    gbuff.fillOval(x*cell-cell/2, y*cell-cell/2, cell, cell);
+    gbuff.fillOval(x*cell-cell / 2, y*cell-cell / 2, cell, cell);
     gbuff.setColor(Color.white);
-    gbuff.drawOval(x*cell-cell/2, y*cell-cell/2, cell, cell);
+    gbuff.drawOval(x*cell-cell / 2, y*cell-cell / 2, cell, cell);
   }
 
   // 백 돌을 (x, y)에 그린다.
   private void drawWhite(int x, int y){         
     gbuff.setColor(Color.white);
-    gbuff.fillOval(x*cell-cell/2, y*cell-cell/2, cell, cell);
+    gbuff.fillOval(x*cell - cell / 2, y*cell - cell / 2, cell, cell);
     gbuff.setColor(Color.black);
-    gbuff.drawOval(x*cell-cell/2, y*cell-cell/2, cell, cell);
-
+    gbuff.drawOval(x*cell - cell / 2, y*cell - cell / 2, cell, cell);
   }
 
   // map 놓여진 돌들을 모두 그린다.
   private void drawStones(){                  
-    for(int x=1; x<=size;x++)
-     for(int y=1; y<=size;y++){
-       if(map[x][y]==BLACK)
+    for(int x = 1; x <= size; x++)
+     for(int y = 1; y <= size; y++){
+       if(map[x][y] == BLACK)
          drawBlack(x, y);
-       else if(map[x][y]==WHITE)
+       else if(map[x][y] == WHITE)
          drawWhite(x, y);
      }
   }
@@ -197,7 +199,7 @@ class OmokBoard extends Canvas{
 
   private int count(Point p, int dx, int dy, int col){
     int i = 0;
-    for(; map[p.x+(i+1)*dx][p.y+(i+1)*dy]==col ;i++);
+    for(; map[p.x + (i + 1)*dx][p.y + (i + 1)*dy] == col; i++);
     return i;
   }
 } 

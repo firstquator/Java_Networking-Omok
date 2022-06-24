@@ -4,65 +4,65 @@ import java.util.*;
 
 public class OmokServer{
   private ServerSocket server;
-  private BManager bMan=new BManager();       // ¸Ş½ÃÁö ¹æ¼ÛÀÚ
-  private Random rnd= new Random();           // Èæ°ú ¹éÀ» ÀÓÀÇ·Î Á¤ÇÏ±â À§ÇÑ º¯¼ö
+  private BManager bMan=new BManager();       // ë©”ì‹œì§€ ë°©ì†¡ì
+  private Random rnd= new Random();           // í‘ê³¼ ë°±ì„ ì„ì˜ë¡œ ì •í•˜ê¸° ìœ„í•œ ë³€ìˆ˜
   public OmokServer(){}
-  void startServer(){                         // ¼­¹ö¸¦ ½ÇÇàÇÑ´Ù.
+  void startServer(){                         // ì„œë²„ë¥¼ ì‹¤í–‰í•œë‹¤.
     try{
       server=new ServerSocket(7777);
-      System.out.println("¼­¹ö¼ÒÄÏÀÌ »ı¼ºµÇ¾ú½À´Ï´Ù.");
+      System.out.println("ì„œë²„ì†Œì¼“ì´ ìƒì„±ë˜ì—ˆìŠµë‹ˆë‹¤.");
 
-      // º´·Ä ½º·¹µù
+      // ë³‘ë ¬ ìŠ¤ë ˆë”©
       while(true){
-        // Å¬¶óÀÌ¾ğÆ®¿Í ¿¬°áµÈ ½º·¹µå¸¦ ¾ò´Â´Ù.
+        // í´ë¼ì´ì–¸íŠ¸ì™€ ì—°ê²°ëœ ìŠ¤ë ˆë“œë¥¼ ì–»ëŠ”ë‹¤.
         Socket socket=server.accept();
 
-        // ½º·¹µå¸¦ ¸¸µé°í ½ÇÇà½ÃÅ²´Ù.
+        // ìŠ¤ë ˆë“œë¥¼ ë§Œë“¤ê³  ì‹¤í–‰ì‹œí‚¨ë‹¤.
         Omok_Thread ot=new Omok_Thread(socket);
         ot.start();
 
-        // bMan¿¡ ½º·¹µå¸¦ Ãß°¡ÇÑ´Ù.
+        // bManì— ìŠ¤ë ˆë“œë¥¼ ì¶”ê°€í•œë‹¤.
         bMan.add(ot);
 
-        System.out.println("Á¢¼ÓÀÚ ¼ö: "+bMan.size());
+        System.out.println("ì ‘ì†ì ìˆ˜: "+bMan.size());
       }
     }catch(Exception e){
       System.out.println(e);
     }
   }
 
- // Å¬¶óÀÌ¾ğÆ®¿Í Åë½ÅÇÏ´Â ½º·¹µå Å¬·¡½º
+ // í´ë¼ì´ì–¸íŠ¸ì™€ í†µì‹ í•˜ëŠ” ìŠ¤ë ˆë“œ í´ë˜ìŠ¤
   class Omok_Thread extends Thread{
-    private int roomNumber=-1;          // ¹æ ¹øÈ£
-    private String userName=null;       // »ç¿ëÀÚ ÀÌ¸§
-    private Socket socket;              // ¼ÒÄÏ
+    private int roomNumber=-1;          // ë°© ë²ˆí˜¸
+    private String userName=null;       // ì‚¬ìš©ì ì´ë¦„
+    private Socket socket;              // ì†Œì¼“
 
-    // °ÔÀÓ ÁØºñ ¿©ºÎ, trueÀÌ¸é °ÔÀÓÀ» ½ÃÀÛÇÒ ÁØºñ°¡ µÇ¾úÀ½À» ÀÇ¹ÌÇÑ´Ù.
+    // ê²Œì„ ì¤€ë¹„ ì—¬ë¶€, trueì´ë©´ ê²Œì„ì„ ì‹œì‘í•  ì¤€ë¹„ê°€ ë˜ì—ˆìŒì„ ì˜ë¯¸í•œë‹¤.
     private boolean ready=false;
-    private BufferedReader reader;     // ÀÔ·Â ½ºÆ®¸²
-    private PrintWriter writer;        // Ãâ·Â ½ºÆ®¸²
+    private BufferedReader reader;     // ì…ë ¥ ìŠ¤íŠ¸ë¦¼
+    private PrintWriter writer;        // ì¶œë ¥ ìŠ¤íŠ¸ë¦¼
 
-    // »ı¼ºÀÚ
+    // ìƒì„±ì
     Omok_Thread(Socket socket){       
       this.socket=socket;
     }
 
-    // ¼ÒÄÏÀ» ¹İÈ¯ÇÑ´Ù.
+    // ì†Œì¼“ì„ ë°˜í™˜í•œë‹¤.
     Socket getSocket(){               
       return socket;
     }
 
-    // ¹æ ¹øÈ£¸¦ ¹İÈ¯ÇÑ´Ù.
+    // ë°© ë²ˆí˜¸ë¥¼ ë°˜í™˜í•œë‹¤.
     int getRoomNumber(){              
       return roomNumber;
     }
 
-    // »ç¿ëÀÚ ÀÌ¸§À» ¹İÈ¯ÇÑ´Ù.
+    // ì‚¬ìš©ì ì´ë¦„ì„ ë°˜í™˜í•œë‹¤.
     String getUserName(){             
       return userName;
     }
 
-     // ÁØºñ »óÅÂ¸¦ ¹İÈ¯ÇÑ´Ù.
+     // ì¤€ë¹„ ìƒíƒœë¥¼ ë°˜í™˜í•œë‹¤.
     boolean isReady(){               
       return ready;
     }
@@ -72,54 +72,54 @@ public class OmokServer{
         reader=new BufferedReader(new InputStreamReader(socket.getInputStream()));
         writer=new PrintWriter(socket.getOutputStream(), true);
 
-        String msg;                     // Å¬¶óÀÌ¾ğÆ®ÀÇ ¸Ş½ÃÁö
+        String msg;                     // í´ë¼ì´ì–¸íŠ¸ì˜ ë©”ì‹œì§€
 
         while((msg=reader.readLine())!=null){
-          // msg°¡ "[NAME]"À¸·Î ½ÃÀÛµÇ´Â ¸Ş½ÃÁöÀÌ¸é
+          // msgê°€ "[NAME]"ìœ¼ë¡œ ì‹œì‘ë˜ëŠ” ë©”ì‹œì§€ì´ë©´
           if(msg.startsWith("[NAME]")){
-            userName=msg.substring(6);          // userNameÀ» Á¤ÇÑ´Ù.
+            userName=msg.substring(6);          // userNameì„ ì •í•œë‹¤.
           }
 
-          // msg°¡ "[ROOM]"À¸·Î ½ÃÀÛµÇ¸é ¹æ ¹øÈ£¸¦ Á¤ÇÑ´Ù.
+          // msgê°€ "[ROOM]"ìœ¼ë¡œ ì‹œì‘ë˜ë©´ ë°© ë²ˆí˜¸ë¥¼ ì •í•œë‹¤.
           else if(msg.startsWith("[ROOM]")){
             int roomNum=Integer.parseInt(msg.substring(6));
-            if( !bMan.isFull(roomNum)){             // ¹æÀÌ Âù »óÅÂ°¡ ¾Æ´Ï¸é
-              // ÇöÀç ¹æÀÇ ´Ù¸¥ »ç¿ë¿¡°Ô »ç¿ëÀÚÀÇ ÅğÀåÀ» ¾Ë¸°´Ù.
+            if( !bMan.isFull(roomNum)){             // ë°©ì´ ì°¬ ìƒíƒœê°€ ì•„ë‹ˆë©´
+              // í˜„ì¬ ë°©ì˜ ë‹¤ë¥¸ ì‚¬ìš©ì—ê²Œ ì‚¬ìš©ìì˜ í‡´ì¥ì„ ì•Œë¦°ë‹¤.
               if(roomNumber!=-1)
                 bMan.sendToOthers(this, "[EXIT]"+userName);
 
-              // »ç¿ëÀÚÀÇ »õ ¹æ ¹øÈ£¸¦ ÁöÁ¤ÇÑ´Ù.
+              // ì‚¬ìš©ìì˜ ìƒˆ ë°© ë²ˆí˜¸ë¥¼ ì§€ì •í•œë‹¤.
               roomNumber=roomNum;
 
-              // »ç¿ëÀÚ¿¡°Ô ¸Ş½ÃÁö¸¦ ±×´ë·Î Àü¼ÛÇÏ¿© ÀÔÀåÇÒ ¼ö ÀÖÀ½À» ¾Ë¸°´Ù.
+              // ì‚¬ìš©ìì—ê²Œ ë©”ì‹œì§€ë¥¼ ê·¸ëŒ€ë¡œ ì „ì†¡í•˜ì—¬ ì…ì¥í•  ìˆ˜ ìˆìŒì„ ì•Œë¦°ë‹¤.
               writer.println(msg);
 
-              // »ç¿ëÀÚ¿¡°Ô »õ ¹æ¿¡ ÀÖ´Â »ç¿ëÀÚ ÀÌ¸§ ¸®½ºÆ®¸¦ Àü¼ÛÇÑ´Ù.
+              // ì‚¬ìš©ìì—ê²Œ ìƒˆ ë°©ì— ìˆëŠ” ì‚¬ìš©ì ì´ë¦„ ë¦¬ìŠ¤íŠ¸ë¥¼ ì „ì†¡í•œë‹¤.
               writer.println(bMan.getNamesInRoom(roomNumber));
 
-              // »õ ¹æ¿¡ ÀÖ´Â ´Ù¸¥ »ç¿ëÀÚ¿¡°Ô »ç¿ëÀÚÀÇ ÀÔÀåÀ» ¾Ë¸°´Ù.
+              // ìƒˆ ë°©ì— ìˆëŠ” ë‹¤ë¥¸ ì‚¬ìš©ìì—ê²Œ ì‚¬ìš©ìì˜ ì…ì¥ì„ ì•Œë¦°ë‹¤.
               bMan.sendToOthers(this, "[ENTER]"+userName);
             }
-            else writer.println("[FULL]");        // »ç¿ëÀÚ¿¡ ¹æÀÌ Ã¡À½À» ¾Ë¸°´Ù.
+            else writer.println("[FULL]");        // ì‚¬ìš©ìì— ë°©ì´ ì°¼ìŒì„ ì•Œë¦°ë‹¤.
           }
 
  
 
-          // "[STONE]" ¸Ş½ÃÁö´Â »ó´ëÆí¿¡°Ô Àü¼ÛÇÑ´Ù.
+          // "[STONE]" ë©”ì‹œì§€ëŠ” ìƒëŒ€í¸ì—ê²Œ ì „ì†¡í•œë‹¤.
           else if(roomNumber>=1 && msg.startsWith("[STONE]"))
             bMan.sendToOthers(this, msg);
 
-          // ´ëÈ­ ¸Ş½ÃÁö¸¦ ¹æ¿¡ Àü¼ÛÇÑ´Ù.
+          // ëŒ€í™” ë©”ì‹œì§€ë¥¼ ë°©ì— ì „ì†¡í•œë‹¤.
           else if(msg.startsWith("[MSG]"))
             bMan.sendToRoom(roomNumber, "["+userName+"]: "+msg.substring(5));
 
-          // "[START]" ¸Ş½ÃÁöÀÌ¸é
+          // "[START]" ë©”ì‹œì§€ì´ë©´
           else if(msg.startsWith("[START]")){
-            ready=true;   // °ÔÀÓÀ» ½ÃÀÛÇÒ ÁØºñ°¡ µÇ¾ú´Ù.
+            ready=true;   // ê²Œì„ì„ ì‹œì‘í•  ì¤€ë¹„ê°€ ë˜ì—ˆë‹¤.
 
-            // ´Ù¸¥ »ç¿ëÀÚµµ °ÔÀÓÀ» ½ÃÀÛÇÑ ÁØºñ°¡ µÇ¾úÀ¸¸é
+            // ë‹¤ë¥¸ ì‚¬ìš©ìë„ ê²Œì„ì„ ì‹œì‘í•œ ì¤€ë¹„ê°€ ë˜ì—ˆìœ¼ë©´
             if(bMan.isReady(roomNumber)){
-              // Èæ°ú ¹éÀ» Á¤ÇÏ°í »ç¿ëÀÚ¿Í »ó´ëÆí¿¡°Ô Àü¼ÛÇÑ´Ù.
+              // í‘ê³¼ ë°±ì„ ì •í•˜ê³  ì‚¬ìš©ìì™€ ìƒëŒ€í¸ì—ê²Œ ì „ì†¡í•œë‹¤.
               int a=rnd.nextInt(2);
 
               if(a==0){
@@ -133,25 +133,25 @@ public class OmokServer{
             }
           }
 
-          // »ç¿ëÀÚ°¡ °ÔÀÓÀ» ÁßÁöÇÏ´Â ¸Ş½ÃÁö¸¦ º¸³»¸é
+          // ì‚¬ìš©ìê°€ ê²Œì„ì„ ì¤‘ì§€í•˜ëŠ” ë©”ì‹œì§€ë¥¼ ë³´ë‚´ë©´
           else if(msg.startsWith("[STOPGAME]"))
             ready=false;
 
-          // »ç¿ëÀÚ°¡ °ÔÀÓÀ» ±â±ÇÇÏ´Â ¸Ş½ÃÁö¸¦ º¸³»¸é
+          // ì‚¬ìš©ìê°€ ê²Œì„ì„ ê¸°ê¶Œí•˜ëŠ” ë©”ì‹œì§€ë¥¼ ë³´ë‚´ë©´
           else if(msg.startsWith("[DROPGAME]")){
             ready=false;
-            // »ó´ëÆí¿¡°Ô »ç¿ëÀÚÀÇ ±â±ÇÀ» ¾Ë¸°´Ù.
+            // ìƒëŒ€í¸ì—ê²Œ ì‚¬ìš©ìì˜ ê¸°ê¶Œì„ ì•Œë¦°ë‹¤.
             bMan.sendToOthers(this, "[DROPGAME]");
           }
 
-          // »ç¿ëÀÚ°¡ ÀÌ°å´Ù´Â ¸Ş½ÃÁö¸¦ º¸³»¸é
+          // ì‚¬ìš©ìê°€ ì´ê²¼ë‹¤ëŠ” ë©”ì‹œì§€ë¥¼ ë³´ë‚´ë©´
           else if(msg.startsWith("[WIN]")){
             ready=false;
             
-            // »ç¿ëÀÚ¿¡°Ô ¸Ş½ÃÁö¸¦ º¸³½´Ù.
+            // ì‚¬ìš©ìì—ê²Œ ë©”ì‹œì§€ë¥¼ ë³´ë‚¸ë‹¤.
             writer.println("[WIN]");
  
-            // »ó´ëÆí¿¡´Â Á³À½À» ¾Ë¸°´Ù.
+            // ìƒëŒ€í¸ì—ëŠ” ì¡ŒìŒì„ ì•Œë¦°ë‹¤.
             bMan.sendToOthers(this, "[LOSE]");
           }  
         }
@@ -164,40 +164,40 @@ public class OmokServer{
           if(writer!=null) writer.close();
           if(socket!=null) socket.close();
           reader=null; writer=null; socket=null;
-          System.out.println(userName+"´ÔÀÌ Á¢¼ÓÀ» ²÷¾ú½À´Ï´Ù.");
-          System.out.println("Á¢¼ÓÀÚ ¼ö: "+bMan.size());
+          System.out.println(userName+"ë‹˜ì´ ì ‘ì†ì„ ëŠì—ˆìŠµë‹ˆë‹¤.");
+          System.out.println("ì ‘ì†ì ìˆ˜: "+bMan.size());
 
-          // »ç¿ëÀÚ°¡ Á¢¼ÓÀ» ²÷¾úÀ½À» °°Àº ¹æ¿¡ ¾Ë¸°´Ù.
+          // ì‚¬ìš©ìê°€ ì ‘ì†ì„ ëŠì—ˆìŒì„ ê°™ì€ ë°©ì— ì•Œë¦°ë‹¤.
           bMan.sendToRoom(roomNumber,"[DISCONNECT]"+userName);
         }catch(Exception e){}
       }
     }
   }
 
-  class BManager extends Vector{       // ¸Ş½ÃÁö¸¦ Àü´ŞÇÏ´Â Å¬·¡½º
+  class BManager extends Vector{       // ë©”ì‹œì§€ë¥¼ ì „ë‹¬í•˜ëŠ” í´ë˜ìŠ¤
     BManager(){}
 
-    // ½º·¹µå¸¦ Ãß°¡ÇÑ´Ù
+    // ìŠ¤ë ˆë“œë¥¼ ì¶”ê°€í•œë‹¤
     void add(Omok_Thread ot){           
       super.add(ot);
     }
 
-    // ½º·¹µå¸¦ Á¦°ÅÇÑ´Ù.
+    // ìŠ¤ë ˆë“œë¥¼ ì œê±°í•œë‹¤.
     void remove(Omok_Thread ot){        
        super.remove(ot);
     }
 
-    // i¹øÂ° ½º·¹µå¸¦ ¹İÈ¯ÇÑ´Ù.
+    // ië²ˆì§¸ ìŠ¤ë ˆë“œë¥¼ ë°˜í™˜í•œë‹¤.
     Omok_Thread getOT(int i){            
       return (Omok_Thread)elementAt(i);
     }
 
-    // i¹øÂ° ½º·¹µåÀÇ ¼ÒÄÏÀ» ¹İÈ¯ÇÑ´Ù.
+    // ië²ˆì§¸ ìŠ¤ë ˆë“œì˜ ì†Œì¼“ì„ ë°˜í™˜í•œë‹¤.
     Socket getSocket(int i){              
       return getOT(i).getSocket();
     }
 
-    // i¹øÂ° ½º·¹µå¿Í ¿¬°áµÈ Å¬¶óÀÌ¾ğÆ®¿¡°Ô ¸Ş½ÃÁö¸¦ Àü¼ÛÇÑ´Ù.
+    // ië²ˆì§¸ ìŠ¤ë ˆë“œì™€ ì—°ê²°ëœ í´ë¼ì´ì–¸íŠ¸ì—ê²Œ ë©”ì‹œì§€ë¥¼ ì „ì†¡í•œë‹¤.
     void sendTo(int i, String msg){
       try{
         PrintWriter pw= new PrintWriter(getSocket(i).getOutputStream(), true);
@@ -205,17 +205,17 @@ public class OmokServer{
       }catch(Exception e){}  
     }
 
-    // i¹øÂ° ½º·¹µåÀÇ ¹æ ¹øÈ£¸¦ ¹İÈ¯ÇÑ´Ù.
+    // ië²ˆì§¸ ìŠ¤ë ˆë“œì˜ ë°© ë²ˆí˜¸ë¥¼ ë°˜í™˜í•œë‹¤.
     int getRoomNumber(int i){            
       return getOT(i).getRoomNumber();
     }
 
-    // ¹æÀÌ Ã¡´ÂÁö ¾Ë¾Æº»´Ù.
+    // ë°©ì´ ì°¼ëŠ”ì§€ ì•Œì•„ë³¸ë‹¤.
     synchronized boolean isFull(int roomNum){    
-      // ´ë±â½ÇÀº Â÷Áö ¾Ê´Â´Ù.
+      // ëŒ€ê¸°ì‹¤ì€ ì°¨ì§€ ì•ŠëŠ”ë‹¤.
       if(roomNum==0)return false;                 
 
-      // ´Ù¸¥ ¹æÀº 2¸í ÀÌ»ó ÀÔÀåÇÒ ¼ö ¾ø´Ù.
+      // ë‹¤ë¥¸ ë°©ì€ 2ëª… ì´ìƒ ì…ì¥í•  ìˆ˜ ì—†ë‹¤.
       int count=0;
       for(int i=0;i<size();i++)
         if(roomNum==getRoomNumber(i))count++;
@@ -223,22 +223,22 @@ public class OmokServer{
       return false;
     }
 
-    // roomNum ¹æ¿¡ msg¸¦ Àü¼ÛÇÑ´Ù.
+    // roomNum ë°©ì— msgë¥¼ ì „ì†¡í•œë‹¤.
     void sendToRoom(int roomNum, String msg){
       for(int i=0;i<size();i++)
         if(roomNum==getRoomNumber(i))
           sendTo(i, msg);
     }
 
-    // ot¿Í °°Àº ¹æ¿¡ ÀÖ´Â ´Ù¸¥ »ç¿ëÀÚ¿¡°Ô msg¸¦ Àü´ŞÇÑ´Ù.
+    // otì™€ ê°™ì€ ë°©ì— ìˆëŠ” ë‹¤ë¥¸ ì‚¬ìš©ìì—ê²Œ msgë¥¼ ì „ë‹¬í•œë‹¤.
     void sendToOthers(Omok_Thread ot, String msg){
       for(int i=0;i<size();i++)
         if(getRoomNumber(i)==ot.getRoomNumber() && getOT(i)!=ot)
           sendTo(i, msg);
     }
 
-    // °ÔÀÓÀ» ½ÃÀÛÇÒ ÁØºñ°¡ µÇ¾ú´Â°¡¸¦ ¹İÈ¯ÇÑ´Ù.
-    // µÎ ¸íÀÇ »ç¿ëÀÚ ¸ğµÎ ÁØºñµÈ »óÅÂÀÌ¸é true¸¦ ¹İÈ¯ÇÑ´Ù.
+    // ê²Œì„ì„ ì‹œì‘í•  ì¤€ë¹„ê°€ ë˜ì—ˆëŠ”ê°€ë¥¼ ë°˜í™˜í•œë‹¤.
+    // ë‘ ëª…ì˜ ì‚¬ìš©ì ëª¨ë‘ ì¤€ë¹„ëœ ìƒíƒœì´ë©´ trueë¥¼ ë°˜í™˜í•œë‹¤.
     synchronized boolean isReady(int roomNum){
       int count=0;
       for(int i=0;i<size();i++)
@@ -253,7 +253,7 @@ public class OmokServer{
 
  
 
-    // roomNum¹æ¿¡ ÀÖ´Â »ç¿ëÀÚµéÀÇ ÀÌ¸§À» ¹İÈ¯ÇÑ´Ù.
+    // roomNumë°©ì— ìˆëŠ” ì‚¬ìš©ìë“¤ì˜ ì´ë¦„ì„ ë°˜í™˜í•œë‹¤.
     String getNamesInRoom(int roomNum){
       StringBuffer sb=new StringBuffer("[PLAYERS]");
       for(int i = 0; i < size(); i++)
