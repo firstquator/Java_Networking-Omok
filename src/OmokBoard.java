@@ -8,7 +8,7 @@ class OmokBoard extends Canvas{
   
   // SIZE : 격자의 가로 또는 세로 개수 ( 19 x 19 )
   // CELL : 격자의 크기(pixel)
-  public static final int CELL = 30, SIZE = 20;
+  public static final int CELL = 30, SIZE = 20, STONE_SIZE = CELL - 2;
 
   private int[][] Map;                         // 오목판 배열
   private String info = "게임 중지";           // 게임의 진행 상황을 나타내는 문자열
@@ -20,7 +20,7 @@ class OmokBoard extends Canvas{
 
   private boolean running = false;            // 게임이 진행 중인가를 나타내는 변수
   private PrintWriter writer;                 // 상대편에게 메시지를 전달하기 위한 스트림
-  private Graphics g;                         // 캔버스와 버퍼를 위한 Graphics 객체
+  private Graphics g = null;                  // 캔버스와 버퍼를 위한 Graphics 객체
   private Image buff;                         // 더블 버퍼링을 위한 버퍼
 
   // 오목판의 생성자
@@ -29,7 +29,7 @@ class OmokBoard extends Canvas{
     for(int i = 0;i < Map.length; i++)
       Map[i] = new int[SIZE + 2];
 
-    setBackground(new Color(206, 167, 61));                // 오목판의 배경색을 정한다.
+    setBackground(new Color(53, 59, 72));                // 오목판의 배경색을 정한다.
     setSize(SIZE*(CELL + 1) + SIZE, SIZE*(CELL + 1) + SIZE);      // 오목판의 크기를 계산한다. (Width, Height)
 
     // 오목판의 마우스 이벤트 처리
@@ -49,7 +49,7 @@ class OmokBoard extends Canvas{
         if(Map[x][y] == BLACK || Map[x][y] == WHITE)
           return;
 
-        // 상대편에게 놓은 돌의 좌표를 전송한다.
+        // 상대편에게 놓은 돌의 좌표를 서버에 전송한다.
         writer.println("[STONE]" + x + " " + y);
         Map[x][y] = color;
 
@@ -63,7 +63,7 @@ class OmokBoard extends Canvas{
 
         // 사용자가 둘 수 없는 상태로 만든다.
         // 상대편이 두면 enable이 true가 되어 사용자가 둘 수 있게 된다.
-        enable=false;
+        enable = false;
       }
     });
   }
@@ -84,7 +84,7 @@ class OmokBoard extends Canvas{
       info = "게임 시작... 선공입니다.";
     }   
 
-    // 백이 선택되었을 때
+    // 백이 선택되었을 때 (후공)
     else{                                
       enable = false;
       color = WHITE;
@@ -98,11 +98,14 @@ class OmokBoard extends Canvas{
     writer.println("[STOPGAME]");     // 상대편에게 메시지를 보낸다.
     enable = false;
     running = false;
+    repaint();  // 수정
   }
 
   // 상대편의 돌을 놓는다.
-  public void putOpponent(int x, int y){       
-    Map[x][y]=-color;
+  public void putOpponent(int x, int y){      
+    // 상대방의 color 변수의 값은 반대 값일 것이다. (나 : 1 상대방 : -1)
+    // 그렇다면 상대방에게 내 돌의 색깔과 같은 돌을 놓아주려면 상대방 color의 -1을 곱해줘야 한다. 
+    Map[x][y] = -color;             
     info = "상대가 두었습니다. 두세요.";
     repaint();
   }
@@ -116,8 +119,9 @@ class OmokBoard extends Canvas{
   }
 
   // repaint를 호출하면 자동으로 호출된다.
-  public void update(Graphics g){        
-    paint(g);                            // paint를 호출한다.
+  public void update(Graphics graphic){        
+    System.out.println("Repaint -ing");
+    paint(graphic);                            // paint를 호출한다.
   }
 
   // 화면을 그린다.
@@ -133,7 +137,7 @@ class OmokBoard extends Canvas{
   public void init(){                         
     for(int y = 0; y < Map.length; y++)
       for(int x = 0; x < Map[y].length; x++)
-        Map[y][x]=0;
+        Map[y][x] = 0;
 
     info = "게임 중지";
     repaint();
@@ -154,18 +158,14 @@ class OmokBoard extends Canvas{
   private void drawBlack(int x, int y){ 
     int interval = CELL / 2;   
     g.setColor(Color.black);
-    g.fillOval(x*CELL-interval, y*CELL-interval, CELL, CELL);
-    g.setColor(Color.white);
-    g.drawOval(x*CELL-interval, y*CELL-interval, CELL, CELL);
+    g.fillOval(x*CELL - interval, y*CELL - interval, STONE_SIZE, STONE_SIZE);
   }
 
   // 백 돌을 (x, y)에 그린다.
   private void drawWhite(int x, int y){
     int interval = CELL / 2;   
     g.setColor(Color.white);
-    g.fillOval(x*CELL - interval, y*CELL - interval, CELL, CELL);
-    g.setColor(Color.black);
-    g.drawOval(x*CELL - interval, y*CELL - interval, CELL, CELL);
+    g.fillOval(x*CELL - interval, y*CELL - interval, STONE_SIZE, STONE_SIZE);
   }
 
   // Map 놓여진 돌들을 모두 그린다.
@@ -194,10 +194,10 @@ class OmokBoard extends Canvas{
   private boolean checkWin(Point p, int color){
     // 방향 벡터
     int dir[][] = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 }, { -1, 1 }, { 1, -1 }, { -1, -1 }, { 1, 1 } };
+    int win_score = 1;
 
     for (int i = 0; i < 8; i += 2) {
       // win_score 가 5가 되면 승리 = 오목이 된 경우
-      int win_score = 1;
       int cunX = p.x;
       int cunY = p.y;
 
@@ -210,7 +210,7 @@ class OmokBoard extends Canvas{
           break;
         
         // 종료 조건 2: Stone이 같은 색으로 이어지지 않은 경우
-        else if(Map[cunX][cunY] == color)
+        else if(Map[cunX][cunY] != color)
           break;
         
         // 위 경우가 아니라면, win_score 1 증가
@@ -230,7 +230,7 @@ class OmokBoard extends Canvas{
           break;
         
         // 종료 조건 2: Stone이 같은 색으로 이어지지 않은 경우
-        else if(Map[cunX][cunY] == color)
+        else if(Map[cunX][cunY] != color)
           break;
         
         // 위 경우가 아니라면, win_score 1 증가
@@ -243,6 +243,7 @@ class OmokBoard extends Canvas{
         return true;
       }
     }
+    System.out.println("Win_score : " + win_score);
     return false;
   }
 }

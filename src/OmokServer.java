@@ -33,12 +33,12 @@ public class OmokServer{
 
  // 클라이언트와 통신하는 스레드 클래스
   class Omok_Thread extends Thread{
-    private int roomNumber=-1;          // 방 번호
-    private String userName=null;       // 사용자 이름
+    private int roomNumber = -1;          // 방 번호
+    private String userName = null;       // 사용자 이름
     private Socket socket;              // 소켓
 
     // 게임 준비 여부, true이면 게임을 시작할 준비가 되었음을 의미한다.
-    private boolean ready=false;
+    private boolean ready = false;
     private BufferedReader reader;     // 입력 스트림
     private PrintWriter writer;        // 출력 스트림
 
@@ -72,9 +72,10 @@ public class OmokServer{
         reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         writer = new PrintWriter(socket.getOutputStream(), true);
 
-        String msg;                     // 클라이언트의 메시지
+        String msg;                     // Client의 메시지
 
-        while((msg = reader.readLine())!=null){
+        while((msg = reader.readLine()) != null){
+          System.out.println(msg);
           // msg가 "[NAME]"으로 시작되는 메시지이면
           if(msg.startsWith("[NAME]")){
             userName = msg.substring(6);          // userName을 정한다.
@@ -103,10 +104,8 @@ public class OmokServer{
             else writer.println("[FULL]");        // 사용자에 방이 찼음을 알린다.
           }
 
- 
-
           // "[STONE]" 메시지는 상대편에게 전송한다.
-          else if(roomNumber>=1 && msg.startsWith("[STONE]"))
+          else if(roomNumber >= 1 && msg.startsWith("[STONE]"))
             user.sendToOthers(this, msg);
 
           // 대화 메시지를 방에 전송한다.
@@ -160,15 +159,15 @@ public class OmokServer{
       finally{
         try{
           user.remove(this);
-          if(reader!=null) reader.close();
-          if(writer!=null) writer.close();
-          if(socket!=null) socket.close();
-          reader=null; writer=null; socket=null;
-          System.out.println(userName+"님이 접속을 끊었습니다.");
-          System.out.println("접속자 수: "+user.size());
+          if(reader != null) reader.close();
+          if(writer != null) writer.close();
+          if(socket != null) socket.close();
+          reader = null; writer = null; socket = null;
+          System.out.println(userName + "님이 접속을 끊었습니다.");
+          System.out.println("접속자 수: " + user.size());
 
           // 사용자가 접속을 끊었음을 같은 방에 알린다.
-          user.sendToRoom(roomNumber,"[DISCONNECT]"+userName);
+          user.sendToRoom(roomNumber, "[DISCONNECT]" + userName);
         }catch(Exception e){}
       }
     }
@@ -243,12 +242,12 @@ public class OmokServer{
     // 게임을 시작할 준비가 되었는가를 반환한다.
     // 두 명의 사용자 모두 준비된 상태이면 true를 반환한다.
     synchronized boolean isReady(int roomNum){
-      int count=0;
+      int count = 0;
       for(int i = 0;i < size(); i++)
         if(roomNum == getRoomNumber(i) && getOT(i).isReady())
           count++;
 
-      if(count==2) 
+      if(count == 2) 
         return true;
 
       return false;
