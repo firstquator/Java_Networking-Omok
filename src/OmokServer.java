@@ -145,7 +145,7 @@ public class OmokServer{
 
           // 사용자가 이겼다는 메시지를 보내면
           else if(msg.startsWith("[WIN]")){
-            ready=false;
+            ready = false;
             
             // 사용자에게 메시지를 보낸다.
             writer.println("[WIN]");

@@ -1,9 +1,14 @@
-import java.awt.*;
-import java.io.*;
-import java.awt.event.*;
+import javax.swing.JPanel;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.PrintWriter;
 
 // 오목판을 구현하는 클래스
-class OmokBoard extends Canvas{               
+public class OmokBoard extends JPanel{               
   public static final int BLACK = 1, WHITE = -1;   // 흑과 백을 나타내는 상수
   
   // SIZE : 격자의 가로 또는 세로 개수 ( 19 x 19 )
@@ -118,16 +123,17 @@ class OmokBoard extends Canvas{
     this.writer = writer;
   }
 
+
   // repaint를 호출하면 자동으로 호출된다.
-  public void update(Graphics graphic){        
-    System.out.println("Repaint -ing");
+  public void paintComponent(Graphics graphic){   
+    super.paintComponent(graphic);  
     paint(graphic);                            // paint를 호출한다.
   }
 
   // 화면을 그린다.
   public void paint(Graphics graphic){                
     if(g == null){                   // 버퍼가 없으면 버퍼를 만든다.
-      buff = createImage(getWidth(),getHeight());
+      buff = createImage(getWidth(), getHeight());
       g = buff.getGraphics();
     }
     drawBoard(graphic);    // 오목판을 그린다.
@@ -238,12 +244,10 @@ class OmokBoard extends Canvas{
           win_score++;
         }
       // 오목이 된 경우 true를 return 
-      // 육목은 허용 X
-      if(win_score == 5) {
+      if(win_score >= 5) {
         return true;
       }
     }
-    System.out.println("Win_score : " + win_score);
     return false;
   }
 }

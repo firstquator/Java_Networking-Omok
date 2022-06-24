@@ -2,6 +2,9 @@ import java.awt.*;
 import java.net.*;
 import java.io.*;
 import java.util.*;
+
+import javax.swing.JFrame;
+
 import java.awt.event.*;
 
 public class OmokClient extends Frame implements Runnable{
@@ -274,11 +277,11 @@ public class OmokClient extends Frame implements Runnable{
 
         // 이겼으면
         else if(msg.startsWith("[WIN]"))              
-          endGame("You Win 🎉 🎉 🎉");
+          endGame("You Win !!!");
 
         // 졌으면
         else if(msg.startsWith("[LOSE]"))           
-          endGame("You Lose . . . 😥");
+          endGame("You Lose . . . ");
 
         // 약속된 메시지가 아니면 메시지 영역에 보여준다.
         else msgView.append(msg + "\n");
@@ -298,8 +301,9 @@ public class OmokClient extends Frame implements Runnable{
 
     // 2초간 대기
     try{ Thread.sleep(2000); }catch(Exception e){}    
-    if(board.isRunning())board.stopGame();
-    if(userList.getItemCount()==2)startButton.setEnabled(true);
+    board.repaint();
+    if(board.isRunning()) board.stopGame();
+    if(userList.getItemCount() == 2) startButton.setEnabled(true);
   }
 
 
