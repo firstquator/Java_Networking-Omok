@@ -14,7 +14,7 @@ public class OmokClient extends Frame implements Runnable{
   private TextField roomBox = new TextField("0");        // 방 번호 상자
 
   // 방에 접속한 인원의 수를 보여주는 레이블
-  private Label pInfo = new Label("대기실:  명");
+  private Label userInfo = new Label("대기실:  명");
   private java.awt.List userList = new java.awt.List();          // 사용자 명단을 보여주는 리스트
   private Button startButton = new Button("대국 시작");    // 대국 시작 버튼
   private Button stopButton = new Button("기권");          // 기권 버튼
@@ -44,7 +44,7 @@ public class OmokClient extends Frame implements Runnable{
     // 각종 컴포넌트를 생성하고 배치한다.
     msgView.setEditable(false);
     infoView.setBounds(start_coord_x,start_coord_y, centerWidth, infoHeight);
-    infoView.setBackground(new Color(200,200,255));
+    infoView.setBackground(new Color(209, 216, 224));
     // 오목판 위치 설정
     board.setLocation(start_coord_x, board_coord_y);
     add(infoView);
@@ -61,7 +61,7 @@ public class OmokClient extends Frame implements Runnable{
 
     // 방 번호 및 이름 입력 Panel
     Panel inputNameandRoom = new Panel();
-    inputNameandRoom.setBackground(new Color(200, 255, 255));
+    inputNameandRoom.setBackground(new Color(165, 177, 194));
     inputNameandRoom.setLayout(new GridLayout(3, 3));
     inputNameandRoom.add(new Label("이     름:", 2)); inputNameandRoom.add(nameBox);
     inputNameandRoom.add(new Label("방 번호:", 2));   inputNameandRoom.add(roomBox);
@@ -71,14 +71,14 @@ public class OmokClient extends Frame implements Runnable{
 
     // 대기자 명단 Panel
     Panel awaiter = new Panel();
-    awaiter.setBackground(new Color(255,255,100));
+    awaiter.setBackground(new Color(165, 177, 194));
     awaiter.setLayout(new BorderLayout());
     awaiter.setBounds(rightStart_coord_x, awaiter_coord_y, rightWidth, awaiterHeight);
 
     // 기권 버튼 Panel
     Panel awaiter_1 = new Panel();
     awaiter_1.add(startButton); awaiter_1.add(stopButton);
-    awaiter.add(pInfo,"North"); awaiter.add(userList,"Center"); awaiter.add(awaiter_1,"South");
+    awaiter.add(userInfo,"North"); awaiter.add(userList,"Center"); awaiter.add(awaiter_1,"South");
     startButton.setEnabled(false); stopButton.setEnabled(false);
 
     // 채팅 Panel
@@ -221,7 +221,11 @@ public class OmokClient extends Frame implements Runnable{
             exitButton.setEnabled(true);
             infoView.setText(msg.substring(6)+"번 방에 입장하셨습니다.");
           }
-          else infoView.setText("대기실에 입장하셨습니다.");
+          else 
+            infoView.setText("대기실에 입장하셨습니다.");
+          
+          roomNumber = Integer.parseInt(msg.substring(6));     // 방 번호 지정
+
           if(board.isRunning()){                         // 게임이 진행중인 상태이면
             board.stopGame();                            // 게임을 중지시킨다.
           }
@@ -257,7 +261,7 @@ public class OmokClient extends Frame implements Runnable{
           userList.remove(msg.substring(12));
           playersInfo();
           msgView.append("[" + msg.substring(12) + "]님이 접속을 끊었습니다.\n");
-          if(roomNumber!=0)
+          if(roomNumber != 0)
             endGame("상대방이 나갔습니다.");
         }
         // 돌의 색을 부여받는다.
@@ -287,7 +291,7 @@ public class OmokClient extends Frame implements Runnable{
         else msgView.append(msg + "\n");
       }
     }catch(IOException ie){
-      msgView.append(ie+"\n");
+      msgView.append(ie + "\n");
     }
     msgView.append("접속이 끊겼습니다.");
   }
@@ -300,7 +304,8 @@ public class OmokClient extends Frame implements Runnable{
     stopButton.setEnabled(false);
 
     // 2초간 대기
-    try{ Thread.sleep(2000); }catch(Exception e){}    
+    try{ Thread.sleep(2000); }catch(Exception e){}   
+
     board.repaint();
     if(board.isRunning()) board.stopGame();
     if(userList.getItemCount() == 2) startButton.setEnabled(true);
@@ -311,8 +316,8 @@ public class OmokClient extends Frame implements Runnable{
   private void playersInfo(){                 
     int count = userList.getItemCount();
     if(roomNumber == 0)
-      pInfo.setText("대기실: "+ count + "명");
-    else pInfo.setText(roomNumber + " 번 방: " + count + "명");
+      userInfo.setText("대기실: "+ count + "명");
+    else userInfo.setText(roomNumber + " 번 방: " + count + "명");
 
     // 대국 시작 버튼의 활성화 상태를 점검한다.
     if(count == 2 && roomNumber != 0)

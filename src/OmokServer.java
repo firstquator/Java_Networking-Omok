@@ -35,7 +35,7 @@ public class OmokServer{
   class Omok_Thread extends Thread{
     private int roomNumber = -1;          // 방 번호
     private String userName = null;       // 사용자 이름
-    private Socket socket;              // 소켓
+    private Socket socket;                // 소켓
 
     // 게임 준비 여부, true이면 게임을 시작할 준비가 되었음을 의미한다.
     private boolean ready = false;
@@ -84,10 +84,11 @@ public class OmokServer{
           // msg가 "[ROOM]"으로 시작되면 방 번호를 정한다.
           else if(msg.startsWith("[ROOM]")){
             int roomNum = Integer.parseInt(msg.substring(6));
+            
             if( !user.isFull(roomNum)){             // 방이 찬 상태가 아니면
               // 현재 방의 다른 사용에게 사용자의 퇴장을 알린다.
-              if(roomNumber!=-1)
-                user.sendToOthers(this, "[EXIT]"+userName);
+              if(roomNumber != -1)
+                user.sendToOthers(this, "[EXIT]" + userName);
 
               // 사용자의 새 방 번호를 지정한다.
               roomNumber = roomNum;

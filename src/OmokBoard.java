@@ -1,7 +1,6 @@
 import javax.swing.JPanel;
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -25,8 +24,6 @@ public class OmokBoard extends JPanel{
 
   private boolean running = false;            // 게임이 진행 중인가를 나타내는 변수
   private PrintWriter writer;                 // 상대편에게 메시지를 전달하기 위한 스트림
-  private Graphics g = null;                  // 캔버스와 버퍼를 위한 Graphics 객체
-  private Image buff;                         // 더블 버퍼링을 위한 버퍼
 
   // 오목판의 생성자
   OmokBoard(){           
@@ -34,7 +31,7 @@ public class OmokBoard extends JPanel{
     for(int i = 0;i < Map.length; i++)
       Map[i] = new int[SIZE + 2];
 
-    setBackground(new Color(53, 59, 72));                // 오목판의 배경색을 정한다.
+    setBackground(new Color(128, 142, 155));                // 오목판의 배경색을 정한다.
     setSize(SIZE*(CELL + 1) + SIZE, SIZE*(CELL + 1) + SIZE);      // 오목판의 크기를 계산한다. (Width, Height)
 
     // 오목판의 마우스 이벤트 처리
@@ -123,22 +120,6 @@ public class OmokBoard extends JPanel{
     this.writer = writer;
   }
 
-
-  // repaint를 호출하면 자동으로 호출된다.
-  public void paintComponent(Graphics graphic){   
-    super.paintComponent(graphic);  
-    paint(graphic);                            // paint를 호출한다.
-  }
-
-  // 화면을 그린다.
-  public void paint(Graphics graphic){                
-    if(g == null){                   // 버퍼가 없으면 버퍼를 만든다.
-      buff = createImage(getWidth(), getHeight());
-      g = buff.getGraphics();
-    }
-    drawBoard(graphic);    // 오목판을 그린다.
-  }
-
   // 오목판을 초기화시킨다.
   public void init(){                         
     for(int y = 0; y < Map.length; y++)
@@ -150,7 +131,7 @@ public class OmokBoard extends JPanel{
   }
 
   // 오목판에 선을 긋는다.
-  private void drawLines(){                     
+  private void drawLines(Graphics g){                     
     g.setColor(Color.black);
     for(int i = 1; i <= SIZE; i++){
       // 가로 줄
@@ -161,39 +142,38 @@ public class OmokBoard extends JPanel{
   }
 
   // 흑 돌을 (x, y)에 그린다.
-  private void drawBlack(int x, int y){ 
+  private void drawBlack(Graphics g, int x, int y){ 
     int interval = CELL / 2;   
     g.setColor(Color.black);
     g.fillOval(x*CELL - interval, y*CELL - interval, STONE_SIZE, STONE_SIZE);
   }
 
   // 백 돌을 (x, y)에 그린다.
-  private void drawWhite(int x, int y){
+  private void drawWhite(Graphics g, int x, int y){
     int interval = CELL / 2;   
     g.setColor(Color.white);
     g.fillOval(x*CELL - interval, y*CELL - interval, STONE_SIZE, STONE_SIZE);
   }
 
   // Map 놓여진 돌들을 모두 그린다.
-  private void drawStones(){                  
+  private void drawStones(Graphics g){                  
     for(int x = 1; x <= SIZE; x++)
      for(int y = 1; y <= SIZE; y++){
        if(Map[x][y] == BLACK)
-         drawBlack(x, y);
+         drawBlack(g, x, y);
        else if(Map[x][y] == WHITE)
-         drawWhite(x, y);
+         drawWhite(g, x, y);
      }
   }
 
   // 오목판을 그린다.
-  synchronized private void drawBoard(Graphics g){      
-    // 버퍼에 먼저 그리고 버퍼의 이미지를 오목판에 그린다.
-    g.clearRect(0, 0, getWidth(), getHeight());
-    drawLines();
-    drawStones();
+  synchronized public void paintComponent(Graphics g){ 
+    super.paintComponent(g);     
+    drawLines(g);
+    drawStones(g);
     g.setColor(Color.red);
+    g.drawString("", 20, 15);
     g.drawString(info, 20, 15);
-    g.drawImage(buff, 0, 0, this);
   }
 
   // 승리했는지 확인한다.
