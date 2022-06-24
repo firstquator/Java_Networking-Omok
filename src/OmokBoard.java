@@ -25,7 +25,7 @@ class OmokBoard extends Canvas{
 
   // 오목판의 생성자
   OmokBoard(){           
-    Map = new int[SIZE + 2][];                    // 맵의 크기를 정한다.
+    Map = new int[SIZE + 2][];                // 맵의 크기를 정한다.
     for(int i = 0;i < Map.length; i++)
       Map[i] = new int[SIZE + 2];
 

@@ -4,10 +4,10 @@ import java.io.*;
 import java.util.*;
 import java.awt.event.*;
 
-public class OmokClient extends Frame implements Runnable, ActionListener{
+public class OmokClient extends Frame implements Runnable{
   private TextArea msgView = new TextArea("", 1,1,1);   // 메시지를 보여주는 영역
   private TextField sendBox = new TextField("");         // 보낼 메시지를 적는 상자
-  private TextField nameBox = new TextField();          // 사용자 이름 상자
+  private TextField nameBox = new TextField();                // 사용자 이름 상자
   private TextField roomBox = new TextField("0");        // 방 번호 상자
 
   // 방에 접속한 인원의 수를 보여주는 레이블
@@ -93,11 +93,11 @@ public class OmokClient extends Frame implements Runnable, ActionListener{
     setSize(width, height);
 
     // 이벤트 리스너를 등록한다.
-    sendBox.addActionListener(this);
-    enterButton.addActionListener(this);
-    exitButton.addActionListener(this);
-    startButton.addActionListener(this);
-    stopButton.addActionListener(this);
+    sendBox.addActionListener(new SendBoxAction());           // 채팅창 ActionEvent
+    enterButton.addActionListener(new EnterBtnAction());      // 입장버튼 ActionEvent
+    exitButton.addActionListener(new ExitBtnAction());        // 대기실 버튼 ActionEvent
+    startButton.addActionListener(new StartBtnAction());      // 게임 시작 버튼 ActionEvent
+    stopButton.addActionListener(new StopBtnAction());        // 기권 버튼 ActionEvent
 
     // 윈도우 닫기 처리
     addWindowListener(new WindowAdapter(){
@@ -109,62 +109,72 @@ public class OmokClient extends Frame implements Runnable, ActionListener{
 
  
   // 컴포넌트들의 액션 이벤트 처리
-  public void actionPerformed(ActionEvent e){
-    // 메시지 입력 상자이면
-    if(e.getSource() == sendBox){             
+
+  // 채팅창 Event 처리
+  private class SendBoxAction implements ActionListener {
+    public void actionPerformed(ActionEvent e) {
       String msg = sendBox.getText();
       if(msg.length() == 0) return;
       if(msg.length() >= 30) msg = msg.substring(0,30);
       try{  
-        writer.println("[MSG]"+msg);
+        writer.println("[MSG]" + msg);
         sendBox.setText("");
-      } catch(Exception ie){}
+      } catch(Exception ie) {}
     }
-  
-    // 입장하기 버튼이면
-    else if(e.getSource() == enterButton){         
+  }
+
+  // 입장 버튼 Event 처리
+  private class EnterBtnAction implements ActionListener {
+    public void actionPerformed(ActionEvent e) {
       try{
         if(Integer.parseInt(roomBox.getText())<1){
           infoView.setText("방 번호가 잘못되었습니다. 1이상");
           return;
         }
-          writer.println("[ROOM]"+Integer.parseInt(roomBox.getText()));
+          writer.println("[ROOM]" + Integer.parseInt(roomBox.getText()));
           msgView.setText("");
-        }catch(Exception ie){
-          infoView.setText("입력하신 사항에 오류가 았습니다.");
-        }
+        } catch(Exception ie){
+          infoView.setText("입력하신 사항에 오류가 있습니다.");
+      }
     }
+  }
 
-    // 대기실로 버튼이면
-    else if(e.getSource() == exitButton){           
+  // 대기실 버튼 Event 처리
+  private class ExitBtnAction implements ActionListener {
+    public void actionPerformed(ActionEvent e) {
       try{
         goToWaitRoom();
         startButton.setEnabled(false);
         stopButton.setEnabled(false);
-      } catch(Exception ie){}
+      } catch(Exception ie) {}
     }
+  }
 
-    // 대국 시작 버튼이면
-    else if(e.getSource() == startButton){          
+  // 게임 시작 버튼 Event 처리
+  private class StartBtnAction implements ActionListener {
+    public void actionPerformed(ActionEvent e) {
       try{
         writer.println("[START]");
         infoView.setText("상대의 결정을 기다립니다.");
         startButton.setEnabled(false);
-      }catch(Exception ie){}
-    }
-
-    // 기권 버튼이면
-    else if(e.getSource()==stopButton){          
-      try{
-        writer.println("[DROPGAME]");
-        endGame("기권하였습니다.");
-      }catch(Exception ie){}
+      } catch(Exception ie) {}
     }
   }
 
+  // 기권 버튼 Event처리
+  private class StopBtnAction implements ActionListener {
+    public void actionPerformed(ActionEvent e) {
+      try{
+        writer.println("[DROPGAME]");
+        endGame("기권하였습니다.");
+      } catch(Exception ie) {}
+   }
+  }
 
   // 대기실로 버튼을 누르면 호출된다.
-  void goToWaitRoom(){                   
+  void goToWaitRoom(){
+
+    // 사용자가 이름을 잘 입력했는지 확인               
     if(userName == null){
       String name = nameBox.getText().trim();
       if(name.length() < 1 || name.length() > 10){
@@ -174,7 +184,7 @@ public class OmokClient extends Frame implements Runnable, ActionListener{
       }
 
       userName = name;
-      writer.println("[NAME]" + userName);    
+      writer.println("[NAME]" + userName);      // 서버에게 사용자 이름을 알려준다.
       nameBox.setText(userName);
       nameBox.setEditable(false);
     }  
@@ -191,7 +201,7 @@ public class OmokClient extends Frame implements Runnable, ActionListener{
   public void run(){
     String msg;       // 서버로부터의 메시지
     try{
-      while((msg=reader.readLine())!=null){
+      while((msg = reader.readLine()) != null){
         // 상대편이 놓은 돌의 좌표
         if(msg.startsWith("[STONE]")){     
           String temp=msg.substring(7);
@@ -200,6 +210,7 @@ public class OmokClient extends Frame implements Runnable, ActionListener{
           board.putOpponent(x, y);                        // 상대편의 돌을 그린다.
           board.setEnable(true);                  // 사용자가 돌을 놓을 수 있도록 한다.
         }
+
         // 방에 입장
         else if(msg.startsWith("[ROOM]")){    
           if(!msg.equals("[ROOM]0")){           // 대기실이 아닌 방이면
@@ -212,21 +223,25 @@ public class OmokClient extends Frame implements Runnable, ActionListener{
             board.stopGame();                            // 게임을 중지시킨다.
           }
         }
+
         // 방이 찬 상태이면
         else if(msg.startsWith("[FULL]")){       
           infoView.setText("방이 차서 입장할 수 없습니다.");
         }
+
         // 방에 있는 사용자 명단
         else if(msg.startsWith("[PLAYERS]")){      
           nameList(msg.substring(9));
         }
-        // 손님 입장
+
+        // 유저 입장
         else if(msg.startsWith("[ENTER]")){        
           pList.add(msg.substring(7));
           playersInfo();
           msgView.append("[" +  msg.substring(7) + "]님이 입장하였습니다.\n");
         }
-        // 손님 퇴장
+
+        // 유저 퇴장
         else if(msg.startsWith("[EXIT]")){            
           pList.remove(msg.substring(6));    // 리스트에서 제거
           playersInfo();                                // 인원수를 다시 계산하여 보여준다.
@@ -234,7 +249,7 @@ public class OmokClient extends Frame implements Runnable, ActionListener{
           if(roomNumber != 0)
             endGame("상대가 나갔습니다.");
         }
-        // 손님 접속 종료
+        // 유저 접속 종료
         else if(msg.startsWith("[DISCONNECT]")){     
           pList.remove(msg.substring(12));
           playersInfo();
