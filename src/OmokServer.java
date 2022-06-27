@@ -6,6 +6,8 @@ public class OmokServer{
   private ServerSocket server;
   private User user = new User();               // 접속자
   private Random random = new Random();         // 흑과 백을 임의로 정하기 위한 변수
+  private ArrayList<Ranking> rankArray;
+
   public OmokServer() {}
   void startServer() {                          // 서버를 실행한다.
     try{
@@ -39,8 +41,8 @@ public class OmokServer{
 
     // 게임 준비 여부, true이면 게임을 시작할 준비가 되었음을 의미한다.
     private boolean ready = false;
-    private BufferedReader reader;     // 입력 스트림
-    private PrintWriter writer;        // 출력 스트림
+    private BufferedReader reader;        // 입력 스트림
+    private PrintWriter writer;           // 출력 스트림
 
     // 생성자
     Omok_Thread(Socket socket){       
@@ -72,12 +74,14 @@ public class OmokServer{
         reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         writer = new PrintWriter(socket.getOutputStream(), true);
 
-        String msg;                     // Client의 메시지
+        String msg;              // Client의 메시지
 
         while((msg = reader.readLine()) != null){
           // msg가 "[NAME]"으로 시작되는 메시지이면
           if(msg.startsWith("[NAME]")){
             userName = msg.substring(6);          // userName을 정한다.
+            Ranking rank = new Ranking(userName);             // 승패 계산을 위한 rank 등록
+            rankArray.add(rank);
           }
 
           // msg가 "[ROOM]"으로 시작되면 방 번호를 정한다.
@@ -261,5 +265,32 @@ public class OmokServer{
           sb.append(getOT(i).getUserName() + "\t");
       return sb.toString();
     }
+  }
+}
+
+class Ranking {
+  private String name;
+  private int winPoint = 0;
+  private int losePoint = 0;
+
+  Ranking(String name) {
+    this.name = name;
+  }
+
+  public void setPoint(int winPoint, int losePoint) {
+    this.winPoint = winPoint;
+    this.losePoint = losePoint;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public int getWin() {
+    return winPoint;
+  }
+
+  public int getLose() {
+    return losePoint;
   }
 }

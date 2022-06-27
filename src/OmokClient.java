@@ -1,21 +1,36 @@
-import java.awt.*;
-import java.net.*;
-import java.io.*;
-import java.util.*;
+import java.awt.TextArea;
+import java.awt.TextField;
+import java.awt.Label;
+import java.awt.Button;
+import java.awt.Color;
+import java.awt.Panel;
+import java.awt.GridLayout;
+import java.awt.BorderLayout;
+import java.awt.List;
 
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowAdapter;
+
+import java.net.Socket;
+import java.util.StringTokenizer;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import javax.swing.JFrame;
 
-import java.awt.event.*;
 
-public class OmokClient extends Frame implements Runnable{
-  private TextArea msgView = new TextArea("", 1,1,1);   // 메시지를 보여주는 영역
+public class OmokClient extends JFrame implements Runnable{
+  private TextArea msgView = new TextArea("", 1,1,1);    // 메시지를 보여주는 영역
   private TextField sendBox = new TextField("");         // 보낼 메시지를 적는 상자
-  private TextField nameBox = new TextField();                 // 사용자 이름 상자
+  private TextField nameBox = new TextField();                // 사용자 이름 상자
   private TextField roomBox = new TextField("0");        // 방 번호 상자
 
   // 방에 접속한 인원의 수를 보여주는 레이블
   private Label userInfo = new Label("대기실:  명");
-  private java.awt.List userList = new java.awt.List();          // 사용자 명단을 보여주는 리스트
+  private List userList = new List();          // 사용자 명단을 보여주는 리스트
   private Button startButton = new Button("대국 시작");    // 대국 시작 버튼
   private Button stopButton = new Button("기권");          // 기권 버튼
   private Button enterButton = new Button("입장하기");     // 입장하기 버튼
@@ -39,12 +54,13 @@ public class OmokClient extends Frame implements Runnable{
     int start_coord_y = 30;
     int centerWidth = board.SIZE*(board.CELL + 1) + board.SIZE; // infoView와 오목판의 Width
     int infoHeight = 40;                                        // infoView Height
-    int board_coord_y = start_coord_y + infoHeight + 10;                     // 오목판 시작 y좌표
+    int board_coord_y = start_coord_y + infoHeight + 10;        // 오목판 시작 y좌표
 
     // 각종 컴포넌트를 생성하고 배치한다.
     msgView.setEditable(false);
     infoView.setBounds(start_coord_x,start_coord_y, centerWidth, infoHeight);
     infoView.setBackground(new Color(209, 216, 224));
+
     // 오목판 위치 설정
     board.setLocation(start_coord_x, board_coord_y);
     add(infoView);
@@ -90,10 +106,10 @@ public class OmokClient extends Frame implements Runnable{
     add(inputNameandRoom); add(awaiter); add(chat);
 
     // 전체 크기
-    int width = start_coord_x + rightStart_coord_x + rightWidth;
-    int height = start_coord_y + board_coord_y + centerWidth;
+    int width = start_coord_x + rightStart_coord_x + rightWidth + 20;
+    int height = start_coord_y + board_coord_y + centerWidth + 20;
 
-    setSize(width, height);
+    setSize(width, height);       // 실행 시, 보이는 화면의 크기
 
     // 이벤트 리스너를 등록한다.
     sendBox.addActionListener(new SendBoxAction());           // 채팅창 ActionEvent
@@ -117,8 +133,9 @@ public class OmokClient extends Frame implements Runnable{
   private class SendBoxAction implements ActionListener {
     public void actionPerformed(ActionEvent e) {
       String msg = sendBox.getText();
-      if(msg.length() == 0) return;
-      if(msg.length() >= 30) msg = msg.substring(0,30);
+      if(msg.length() == 0) return;     // 아무것도 입력하지 않았을 시, 채팅이 입력되지 않도록 한다.
+      if(msg.length() >= 30) msg = msg.substring(0,30);     // 30자 이상 입력하면 잘라서 보이도록 한다.
+
       try{  
         writer.println("[MSG]" + msg);
         sendBox.setText("");
@@ -153,7 +170,7 @@ public class OmokClient extends Frame implements Runnable{
     }
   }
 
-  // 게임 시작 버튼 Event 처리
+  // 대국 시작 버튼 Event 처리
   private class StartBtnAction implements ActionListener {
     public void actionPerformed(ActionEvent e) {
       try{
@@ -175,7 +192,7 @@ public class OmokClient extends Frame implements Runnable{
   }
 
   // 대기실로 버튼을 누르면 호출된다.
-  void goToWaitRoom(){
+  void goToWaitRoom() {
 
     // 사용자가 이름을 잘 입력했는지 확인               
     if(userName == null){
@@ -201,7 +218,7 @@ public class OmokClient extends Frame implements Runnable{
   }
 
 
-  public void run(){
+  public void run() {
     String msg;       // 서버로부터의 메시지
     try{
       while((msg = reader.readLine()) != null){
@@ -256,6 +273,7 @@ public class OmokClient extends Frame implements Runnable{
           if(roomNumber != 0)
             endGame("상대방이 나갔습니다.");
         }
+
         // 유저 접속 종료
         else if(msg.startsWith("[DISCONNECT]")){     
           userList.remove(msg.substring(12));
@@ -264,6 +282,7 @@ public class OmokClient extends Frame implements Runnable{
           if(roomNumber != 0)
             endGame("상대방이 나갔습니다.");
         }
+
         // 돌의 색을 부여받는다.
         else if(msg.startsWith("[COLOR]")){          
           String color = msg.substring(7);
@@ -290,7 +309,7 @@ public class OmokClient extends Frame implements Runnable{
         // 약속된 메시지가 아니면 메시지 영역에 보여준다.
         else msgView.append(msg + "\n");
       }
-    }catch(IOException ie){
+    } catch(IOException ie) {
       msgView.append(ie + "\n");
     }
     msgView.append("접속이 끊겼습니다.");
@@ -298,22 +317,25 @@ public class OmokClient extends Frame implements Runnable{
 
 
   // 게임의 종료시키는 메소드
-  private void endGame(String msg){                
+  private void endGame(String msg){           
+    int millis = 3000;
+    
     infoView.setText(msg);
     startButton.setEnabled(false);
     stopButton.setEnabled(false);
 
-    // 2초간 대기
-    try{ Thread.sleep(2000); }catch(Exception e){}   
+    // 3초간 대기
+    try{ Thread.sleep(millis); } catch(Exception e){}   
 
     board.repaint();
+
     if(board.isRunning()) board.stopGame();
     if(userList.getItemCount() == 2) startButton.setEnabled(true);
   }
 
 
   // 방에 있는 접속자의 수를 보여준다.
-  private void playersInfo(){                 
+  private void playersInfo() {                 
     int count = userList.getItemCount();
     if(roomNumber == 0)
       userInfo.setText("대기실: "+ count + "명");
@@ -327,7 +349,7 @@ public class OmokClient extends Frame implements Runnable{
 
 
   // 사용자 리스트에서 사용자들을 추출하여 userList에 추가한다.
-  private void nameList(String msg){
+  private void nameList(String msg) {
     userList.removeAll();
     StringTokenizer st = new StringTokenizer(msg, "\t");
     while(st.hasMoreElements())
@@ -338,17 +360,19 @@ public class OmokClient extends Frame implements Runnable{
 
   // 연결
   void connect(){                   
-    try{
+    try {
       msgView.append("서버에 연결을 요청합니다.\n");
       socket = new Socket("localhost", 7777);
-      msgView.append("======== ✔ 연결 성공 ✔ ========\n");
+      msgView.append("=========== ✔ 연결 성공 ✔ ===========\n");
       msgView.append("이름을 입력하고 대기실로 입장하세요.\n");
+
       reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
       writer = new PrintWriter(socket.getOutputStream(), true);
 
       new Thread(this).start();
       board.setWriter(writer);
-    }catch(Exception e){
+
+    } catch(Exception e) {
       msgView.append(e + "\n\n연결 실패...\n");  
     }
   }
